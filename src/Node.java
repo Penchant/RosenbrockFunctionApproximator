@@ -7,7 +7,7 @@ public class Node {
     public List<Double> inputs;
     public List<Double> weights;
 
-    public double calculateOutputs(){return 0d;};
-    public void updateWeights(List<Double> weightChanges){};
+    public double calculateOutputs(){return 0d;}
+    public void updateWeights(List<Double> weightChanges){}
 
 }
