@@ -13,7 +13,7 @@ public class Network {
     private void kMeansCluster(int k){}
     private double calculateSigma(){return 0d;}
 
-    private double rossenBrock(double ... values) {
+    private double rosenbrock(double ... values) {
         double sum = 0;
         for(int i = 0; i < values.length-1; i++) {
             sum += Math.pow(Math.pow(1-values[i], 2) + 100 * (values[i+1] - Math.pow(values[i], 2)), 2);
