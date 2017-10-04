@@ -5,7 +5,7 @@ public class Network {
     private List<List<Double>> examples;
     private List<Layer> layers;
 
-    public Network(int hiddenLayers, int nodesPerHiddenLayer, int inputCount, int dimension, boolean isRadialBases) {}
+    public Network(int hiddenLayers, int nodesPerHiddenLayer, int inputCount, int dimension, boolean isRadialBasis) {}
 
     public void forwardPropogate(){}
     public void backPropogate(){}
