@@ -1,5 +1,4 @@
 import java.util.List;
-
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -12,11 +11,11 @@ public class Layer {
     public Layer(int nodeCount, Type layerType) {
         nodes = new Node[nodeCount];
 
-        Stream.iterate(0, i -> i + 1).forEach(i -> nodes[i] = new Node(layerType));
+        Stream.iterate(0, i -> i + 1).limit(nodeCount).forEach(i -> nodes[i] = new Node(layerType));
     }
 
     public void updateNodeWeights(List<List<Double>> weights){
-        Stream.iterate(0, i -> i + 1).forEach(i -> nodes[i].updateWeights(weights.get(i)));
+        Stream.iterate(0, i -> i + 1).limit(weights.size()).forEach(i -> nodes[i].updateWeights(weights.get(i)));
     }
 
     public List<List<Double>> calculateNodeOutputs(){
