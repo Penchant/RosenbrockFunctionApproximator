@@ -15,7 +15,7 @@ public class Network {
 
     private double rosenbrock(double ... values) {
         double sum = 0;
-        for(int i = 0; i < values.length-1; i++) {
+        for(int i = 0; i < values.length-2; i++) {
             sum += Math.pow(Math.pow(1-values[i], 2) + 100 * (values[i+1] - Math.pow(values[i], 2)), 2);
         }
         return sum;
