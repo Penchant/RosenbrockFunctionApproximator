@@ -8,7 +8,7 @@ public class Layer {
 
     public Layer(int nodes, Type layerType) {}
 
-    public void updateNodeWeights(List<List<Double>> weights){};
-    public List<Double> calculateNodeOutputs(){return null;};
+    public void updateNodeWeights(List<List<Double>> weights){}
+    public List<Double> calculateNodeOutputs(){return null;}
 
 }
