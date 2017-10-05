@@ -1,2 +1,5 @@
-// IntelliJ Project Files
+# IntelliJ Project Files
 .idea/*
+
+# Bin
+/bin/*
