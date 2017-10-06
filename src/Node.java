@@ -1,6 +1,7 @@
 import java.util.List;
 import java.util.function.Function;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
 public class Node {
@@ -26,8 +27,8 @@ public class Node {
             default:        activationFunction = linearActivation;   break;
         }
 
-        return Stream.iterate(0, i -> i + 1)
-                .limit(inputs.size())
+        return IntStream.range(0, inputs.size())
+                .boxed()
                 .map(i -> new Double[]{activationFunction.apply(inputs.get(i)), weights.get(i)})
                 .map(calculateOutput)
                 .collect(Collectors.toList());
