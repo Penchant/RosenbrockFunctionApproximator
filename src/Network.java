@@ -1,4 +1,5 @@
 import java.util.List;
+import java.util.stream.*;
 
 public class Network {
 
@@ -20,11 +21,9 @@ public class Network {
      * @return The result of applying to Rosenbrock function to the given input
      */
     private double rosenbrock(double ... values) {
-        double sum = 0;
-        for(int i = 0; i < values.length-2; i++) {
-            sum += Math.pow(Math.pow(1-values[i], 2) + 100 * (values[i+1] - Math.pow(values[i], 2)), 2);
-        }
-        return sum;
+        return IntStream.range(0, values.length - 2)
+                .mapToDouble(i -> Math.pow(Math.pow(1 - values[i], 2) + 100 * (values[i + 1] - Math.pow(values[i], 2)), 2))
+                .sum();
     }
 
 }
