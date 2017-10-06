@@ -1,3 +1,4 @@
+import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Function;
 import java.util.function.ToDoubleFunction;
@@ -8,9 +9,14 @@ public class Network {
     private List<List<Double>> examples;
     private List<Layer> layers;
 
-    public Network(int hiddenLayers, int nodesPerHiddenLayer, int inputCount, int dimension, boolean isRadialBasis) {}
+    private int hiddenLayers;
 
-    public void forwardPropogate(){}
+    public Network(int hiddenLayers, int nodesPerHiddenLayer, int inputCount, int dimension, boolean isRadialBasis) {
+        this.hiddenLayers = hiddenLayers;
+    }
+
+    public void forwardPropogate() {}
+
     public void backPropogate(){}
     public List<Double> calculateError(){return null;}
     private void kMeansCluster(int k){}
@@ -25,6 +31,7 @@ public class Network {
     private double rosenbrock(double ... values) {
         return IntStream.range(0, values.length - 2)
                 .boxed()
+                .parallel()
                 .map(i -> new Double[] {values[i], values[i + 1]})
                 .mapToDouble(rosenbrock2D)
                 .sum();
