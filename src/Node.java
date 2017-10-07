@@ -6,10 +6,14 @@ import java.util.stream.Stream;
 
 public class Node {
 
+    public static double sigma = 0;
+
     private Type nodeType;
     public double output;
     public List<Double> inputs;
     public List<Double> weights;
+
+    public double mu = 0;
 
     public Node(Type nodeType) {
         this.nodeType = nodeType;
@@ -29,6 +33,7 @@ public class Node {
 
         return IntStream.range(0, inputs.size())
                 .boxed()
+                .parallel()
                 .map(i -> new Double[]{activationFunction.apply(inputs.get(i)), weights.get(i)})
                 .map(calculateOutput)
                 .collect(Collectors.toList());
@@ -38,8 +43,8 @@ public class Node {
         weights = newWeights;
     }
 
-    private double gaussianBasisFunction(double value, double musubj, double delta) {
-        return Math.pow(Math.E, - Math.pow(value - musubj, 2) / (2 * delta * delta));
+    private double gaussianBasisFunction(double value) {
+        return Math.pow(Math.E, - Math.pow(value - mu, 2) / (2 * sigma * sigma));
     }
 
     /**
