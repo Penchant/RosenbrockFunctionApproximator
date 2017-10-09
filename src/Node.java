@@ -43,9 +43,7 @@ public class Node {
         weights = newWeights;
     }
 
-    private double gaussianBasisFunction(double value) {
-        return Math.pow(Math.E, - Math.pow(value - mu, 2) / (2 * sigma * sigma));
-    }
+    private Function<Double, Double> gaussianBasisFunction = value -> Math.pow(Math.E, - Math.pow(value - mu, 2) / (2 * sigma * sigma));
 
     /**
      * Function to calculate the output for each [Node]
