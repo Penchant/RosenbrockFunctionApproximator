@@ -16,7 +16,9 @@ public class Layer {
     }
 
     public void updateNodeWeights(List<List<Double>> weights){
-        IntStream.range(0, weights.size()).boxed().forEach(i -> nodes[i].updateWeights(weights.get(i)));
+        IntStream.range(0, weights.size())
+                .boxed()
+                .forEach(i -> nodes[i].updateWeights(weights.get(i)));
     }
 
     public List<List<Double>> calculateNodeOutputs(){

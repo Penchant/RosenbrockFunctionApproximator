@@ -31,12 +31,12 @@ public class Node {
             default:        activationFunction = linearActivation;   break;
         }
 
-        return IntStream.range(0, inputs.size())
+        return activationFunction.apply(IntStream.range(0, inputs.size())
                 .boxed()
                 .parallel()
-                .map(i -> new Double[]{activationFunction.apply(inputs.get(i)), weights.get(i)})
-                .map(calculateOutput)
-                .collect(Collectors.toList());
+                .map(i -> new Double[]{inputs.get(i), weights.get(i)})
+                .mapToDouble(calculateOutput)
+                .sum());
     }
 
     public void updateWeights(List<Double> newWeights) {
