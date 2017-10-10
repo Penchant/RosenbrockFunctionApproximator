@@ -54,7 +54,7 @@ public class Main extends Application {
         if(useGUI) {
             timer = new javax.swing.Timer(1, ae -> {
                 if((int)(Math.random() * 4) != 0 && progress <= 0.97d)
-                    controller.setProgress(progress += 0.0001d);
+                    controller.progressBar.setProgress(progress += 0.0001d);
                 if(shouldStop)
                     timer.stop();
             });
