@@ -25,6 +25,7 @@ public class Main extends Application {
     private static int hiddenLayers = 0;
     private static int dimension = 0;
     private static int nodesPerHiddenLayer = 0;
+    private static boolean shouldSave = false;
 
     @Override
     public void start(Stage primaryStage) throws Exception {
@@ -87,18 +88,13 @@ public class Main extends Application {
             new CommandLineParameter("-hl",     "The amount of hidden layers - default [???]",                          i -> hiddenLayers = (int) i,        true),  // Hidden Layers
             new CommandLineParameter("-d",      "The number of dimensions the function will use - default [2]",         i -> dimension = (int) i,           true),  // Dimensions
             new CommandLineParameter("-n",      "The number of nodes per hidden layer - default [???]",                 i -> nodesPerHiddenLayer = (int) i, true),  // Nodes Per Hidden Layer
-            new CommandLineParameter("-s",      "Save the weights to a given output file             ",                 f -> saveCommand(),                 false), // Save
+            new CommandLineParameter("-s",      "Save the weights to a given output file             ",                 f -> shouldSave = true,             false), // Save
     };
 
     private static boolean printHelp() {
         Stream.of(commands).forEach(System.out::println);
         System.exit(0);
         return false;
-    }
-
-    private static boolean saveCommand() {
-        save();
-        return true;
     }
 
     public static void main(String[] args) {
@@ -124,6 +120,7 @@ public class Main extends Application {
             launch(args);
         } else {
             start(dataGenStart, dataGenEnd, dataGenIncrement, hiddenLayers, dimension, nodesPerHiddenLayer, isRadialBasis);
+            if(shouldSave) save();
             System.exit(0);
         }
 
