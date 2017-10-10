@@ -4,18 +4,20 @@ Running without any parameters will open the GUI.  If you would rather use the c
 
 For help with the command line parameters, use `java Main -h`
 
-```
--nogui  Runs the application without a GUI - default [False]     Takes no parameter
--h      Displays the help text   Takes no parameter
--rb     Sets the network to use radial basis - default [False]   Takes no parameter
--ds     The start point for the data (example) generation - default [???]
--de     The end point for the data (example) generation - default [???]
--di     The incrementation of the data point - default [???]
--hl     The amount of hidden layers - default [???]
--d      The number of dimensions the function will use - default [2]
--n      The number of nodes per hidden layer - default [???]
--s      Save the weights to a given output file                  Takes no parameter
-```
+
+| Flag | Description | Uses Parameter |
+| ------- | -------------------------------------------------------- | ------------------ |
+| -nogui  | Runs the application without a GUI - default [False]     | False |
+| -h      | Displays the help text   | False |
+| -rb     | Sets the network to use radial basis - default [False]   | False |
+| -ds     | The start point for the data (example) generation - default [???] | True |
+| -de     | The end point for the data (example) generation - default [???] | True |
+| -di     | The incrementation of the data point - default [???]| True |
+| -hl     | The amount of hidden layers - default [???]| True |
+| -d      | The number of dimensions the function will use - default [2]| True |
+| -n      | The number of nodes per hidden layer - default [???]| True |
+| -s      | Save the weights to a given output file                  | False |
+
 
 Example:
 ```
