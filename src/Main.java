@@ -1,36 +1,24 @@
-import javax.swing.*;
-import java.awt.*;
+import javafx.application.Application;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Scene;
+import javafx.stage.Stage;
+import java.io.File;
 
-public class Main extends JPanel {
+public class Main extends Application {
 
-    Network network;
-
-    public Main () {
-        JFrame frame = createWindow("Rosenbrock Function Approximation", 800, 800);
-        addContentToWindow(frame);
-
-        network = new Network(0, 0, 0, false);
+    @Override
+    public void start(Stage primaryStage) throws Exception {
+        primaryStage.setScene(new Scene(FXMLLoader.load(new File("res/format.fxml").toURI().toURL()), 640, 480));
+        primaryStage.show();
     }
 
-    private JFrame createWindow (String title, int width, int height) {
-        JFrame frame = new JFrame();
+    public static void start (int dataGenStart, int dataGenEnd, int dataGenIncrement, int hiddenLayers, int inputCount, int nodesPerHiddenLater, boolean isRadialBasis) {
+        Network network = new Network(hiddenLayers, nodesPerHiddenLater, inputCount, isRadialBasis);
 
-        frame.setTitle(title);
-        frame.getContentPane().setPreferredSize(new Dimension(width, height));
-        frame.pack();
-        frame.setLocationRelativeTo(null);
-        frame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
-        frame.setVisible(true);
-
-        return frame;
-    }
-
-    private void addContentToWindow(JFrame frame) {
-        frame.add(this);
     }
 
     public static void main(String[] args) {
-        new Main();
+        launch(args);
     }
 
 }
