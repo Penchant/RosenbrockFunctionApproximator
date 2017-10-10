@@ -9,13 +9,13 @@ public class Network {
 
     private int hiddenLayers;
     private int inputCount;
-    private int dimension;
+    private int nodesPerHiddenLayer;
     private boolean isRadialBasis;
 
-    public Network(int hiddenLayers, int inputCount, int dimension, boolean isRadialBasis) {
+    public Network(int hiddenLayers, int nodesPerHiddenLayer, int inputCount, boolean isRadialBasis) {
         this.hiddenLayers = hiddenLayers;
         this.inputCount = inputCount;
-        this.dimension = dimension;
+        this.nodesPerHiddenLayer = nodesPerHiddenLayer;
         this.isRadialBasis = isRadialBasis;
     }
 
