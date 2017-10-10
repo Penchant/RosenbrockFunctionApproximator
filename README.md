@@ -16,7 +16,7 @@ For help with the command line parameters, use `java Main -h`
 | -hl     | The amount of hidden layers | ??? | True |
 | -d      | The number of dimensions the function will use | 2 | True |
 | -n      | The number of nodes per hidden layer | ??? | True |
-| -s      | Save the weights to a given output file | | | False |
+| -s      | Save the weights to a given output file | | False |
 
 
 Example:
