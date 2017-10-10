@@ -25,10 +25,10 @@ public class Node {
 
         switch(nodeType) {
             case HIDDEN:    activationFunction = logisticActivation; break;
-            case RBFHIDDEN: activationFunction = logisticActivation; break;
-            case INPUT:     activationFunction = linearActivation;   break;
-            case OUTPUT:    activationFunction = linearActivation;   break;
-            case RBFINPUT:  activationFunction = linearActivation;   break;
+            case RBFHIDDEN: activationFunction = gaussianBasisFunction; break;
+            case INPUT:
+            case OUTPUT:
+            case RBFINPUT:
             default:        activationFunction = linearActivation;   break;
         }
 

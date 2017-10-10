@@ -12,17 +12,24 @@ public class Layer {
     public Layer(int nodeCount, Type layerType) {
         nodes = new Node[nodeCount];
 
-        IntStream.range(0, nodeCount).boxed().forEach(i -> nodes[i] = new Node(layerType));
+        IntStream.range(0, nodeCount)
+                .boxed()
+                .parallel()
+                .forEach(i -> nodes[i] = new Node(layerType));
     }
 
     public void updateNodeWeights(List<List<Double>> weights){
         IntStream.range(0, weights.size())
                 .boxed()
+                .parallel()
                 .forEach(i -> nodes[i].updateWeights(weights.get(i)));
     }
 
     public List<Double> calculateNodeOutputs(){
-        return Stream.of(nodes).map(n -> n.calculateOutputs()).collect(Collectors.toList());
+        return Stream.of(nodes)
+                .parallel()
+                .map(n -> n.calculateOutputs())
+                .collect(Collectors.toList());
     }
 
 }
