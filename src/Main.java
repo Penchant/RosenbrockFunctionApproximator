@@ -32,15 +32,15 @@ public class Main extends Application {
     }
 
     private static CommandLineParameter[] commands = {
-            new CommandLineParameter("-nogui",  "Runs the application without a GUI - default [False]",                 f -> useGUI = false),                               // No GUI
-            new CommandLineParameter("-h",      "Displays the help text",                                               f -> printHelp()),                                  // Help
-            new CommandLineParameter("-rb",     "Sets the network to use radial basis - default [False]",               f -> isRadialBasis = true),                         // Radial Basis
-            new CommandLineParameter("-ds",     "The start point for the data (example) generation - default [???]",    i -> dataGenStart = (int) i,        true), // Data Generation Start
-            new CommandLineParameter("-de",     "The end point for the data (example) generation - default [???]",      i -> dataGenEnd = (int) i,          true), // Data Generation End
-            new CommandLineParameter("-di",     "The incrementation of the data point - default [???]",                 i -> dataGenIncrement = (int) i,    true), // Data Generation Incrementation
-            new CommandLineParameter("-hl",     "The amount of hidden layers - default [???]",                          i -> hiddenLayers = (int) i,        true), // Hidden Layers
-            new CommandLineParameter("-d",      "The number of dimensions the function will use - default [2]",         i -> dimension = (int) i,           true), // Dimensions
-            new CommandLineParameter("-n",      "The number of nodes per hidden layer - default [???]",                 i -> nodesPerHiddenLayer = (int) i, true), // Nodes Per Hidden Layer
+            new CommandLineParameter("-nogui",  "Runs the application without a GUI - default [False]",                 f -> useGUI = false,                false), // No GUI
+            new CommandLineParameter("-h",      "Displays the help text",                                               f -> printHelp(),                   false), // Help
+            new CommandLineParameter("-rb",     "Sets the network to use radial basis - default [False]",               f -> isRadialBasis = true,          false), // Radial Basis
+            new CommandLineParameter("-ds",     "The start point for the data (example) generation - default [???]",    i -> dataGenStart = (int) i,        true),  // Data Generation Start
+            new CommandLineParameter("-de",     "The end point for the data (example) generation - default [???]",      i -> dataGenEnd = (int) i,          true),  // Data Generation End
+            new CommandLineParameter("-di",     "The incrementation of the data point - default [???]",                 i -> dataGenIncrement = (int) i,    true),  // Data Generation Incrementation
+            new CommandLineParameter("-hl",     "The amount of hidden layers - default [???]",                          i -> hiddenLayers = (int) i,        true),  // Hidden Layers
+            new CommandLineParameter("-d",      "The number of dimensions the function will use - default [2]",         i -> dimension = (int) i,           true),  // Dimensions
+            new CommandLineParameter("-n",      "The number of nodes per hidden layer - default [???]",                 i -> nodesPerHiddenLayer = (int) i, true),  // Nodes Per Hidden Layer
     };
 
     private static boolean printHelp() {
@@ -86,10 +86,6 @@ public class Main extends Application {
         public String helpText;
         public Function func;
         public boolean hasParam;
-
-        public CommandLineParameter(String flag, String helpText, Function func) {
-            this(flag, helpText, func, false);
-        }
 
         public CommandLineParameter(String flag, String helpText, Function func, boolean hasParam) {
             this.flag = flag;
