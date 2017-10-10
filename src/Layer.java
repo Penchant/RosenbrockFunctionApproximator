@@ -18,7 +18,7 @@ public class Layer {
                 .forEach(i -> nodes[i] = new Node(layerType));
     }
 
-    public void updateNodeWeights(List<List<Double>> weights){
+    public void updateNodeWeights(List<List<Double>> weights) {
         IntStream.range(0, weights.size())
                 .boxed()
                 .parallel()
@@ -28,7 +28,7 @@ public class Layer {
     public List<Double> calculateNodeOutputs(){
         return Stream.of(nodes)
                 .parallel()
-                .map(n -> n.calculateOutputs())
+                .map(n -> n.calculateOutput())
                 .collect(Collectors.toList());
     }
 
