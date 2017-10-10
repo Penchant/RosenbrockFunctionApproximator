@@ -14,9 +14,10 @@ For help with the command line parameters, use `java Main -h`
 -hl     The amount of hidden layers - default [???]
 -d      The number of dimensions the function will use - default [2]
 -n      The number of nodes per hidden layer - default [???]
+-s      Save the weights to a given output file                  Takes no parameter
 ```
 
 Example:
 ```
-java Main -nogui -rb -ds 0 -de 20 -di 1 -hl 2 -d 3 -n 7
+java Main -nogui -rb -ds 0 -de 20 -di 1 -hl 2 -d 3 -n 7 -s
 ```
