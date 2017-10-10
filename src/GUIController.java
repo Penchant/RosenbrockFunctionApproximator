@@ -18,35 +18,17 @@ public class GUIController implements Initializable {
         progressBar.setProgress(0d);
     }
 
-    @FXML
-    Button selectFileButton;
-
-    @FXML
-    Button startButton;
-
-    @FXML
-    TextField dataGenStartTextField;
-
-    @FXML
-    TextField dataGenEndTextField;
-
-    @FXML
-    TextField dataGenIncrementTextField;
-
-    @FXML
-    TextField hiddenLayersTextField;
-
-    @FXML
-    TextField inputCountTextField;
-
-    @FXML
-    TextField nodesPerHiddenLayerTextField;
-
-    @FXML
-    CheckBox isRadialBasisCheckbox;
-
-    @FXML
-    ProgressBar progressBar;
+    @FXML private Button selectFileButton;
+    @FXML private Button startButton;
+    @FXML private TextField dataGenStartTextField;
+    @FXML private TextField dataGenEndTextField;
+    @FXML private TextField dataGenIncrementTextField;
+    @FXML private TextField hiddenLayersTextField;
+    @FXML private TextField inputCountTextField;
+    @FXML private TextField nodesPerHiddenLayerTextField;
+    @FXML private CheckBox isRadialBasisCheckbox;
+    
+    @FXML public ProgressBar progressBar;
 
     @FXML
     private void selectFile(MouseEvent event) {
@@ -68,10 +50,6 @@ public class GUIController implements Initializable {
         } catch (NumberFormatException nfe) {
             System.err.println("Invalid arguments");
         }
-    }
-
-    public void setProgress(double progress) {
-        progressBar.setProgress(progress);
     }
 
 }
