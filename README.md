@@ -1,5 +1,5 @@
 # RosenbrockFunctionApproximator
-Using neural network, basic backprop and radial basis function
+Using neural network, basic backprop and radial basis function.
 Running without any parameters will open the GUI.  If you would rather use the command line, it is also optionally there.
 
 For help with the command line parameters, use `java Main -h`
