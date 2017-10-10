@@ -1,16 +1,13 @@
 import java.util.List;
 import java.util.function.Function;
 import java.util.function.ToDoubleFunction;
-import java.util.stream.Collectors;
 import java.util.stream.IntStream;
-import java.util.stream.Stream;
 
 public class Node {
 
     public static double sigma = 0;
 
     private Type nodeType;
-    public double output;
     public List<Double> inputs;
     public List<Double> weights;
 
@@ -20,7 +17,7 @@ public class Node {
         this.nodeType = nodeType;
     }
 
-    public double calculateOutputs() {
+    public double calculateOutput() {
         final Function<Double, Double> activationFunction;
 
         switch(nodeType) {
@@ -32,25 +29,30 @@ public class Node {
             default:        activationFunction = linearActivation;   break;
         }
 
-        return activationFunction.apply(IntStream.range(0, inputs.size())
-                .boxed()
-                .parallel()
-                .map(i -> new Double[]{inputs.get(i), weights.get(i)})
-                .mapToDouble(calculateOutput)
-                .sum());
+        return activationFunction.apply(
+                IntStream.range(0, inputs.size())
+                    .boxed()
+                    .parallel()
+                    .map(i -> new Double[]{inputs.get(i), weights.get(i)})
+                    .mapToDouble(calculateOutput)
+                    .sum()
+        );
     }
 
     public void updateWeights(List<Double> newWeights) {
         weights = newWeights;
     }
 
-    private Function<Double, Double> gaussianBasisFunction = value -> Math.pow(Math.E, - Math.pow(value - mu, 2) / (2 * sigma * sigma));
-
     /**
      * Function to calculate the output for each [Node]
      * Takes in a value and a weight and multiplies them
      */
     private ToDoubleFunction<Double[]> calculateOutput = values -> values[0] * values[1];
+
+    /**
+     * Gaussian Basis Function (RBF Activation function)
+     */
+    private Function<Double, Double> gaussianBasisFunction = value -> Math.pow(Math.E, - Math.pow(value - mu, 2) / (2 * sigma * sigma));
 
     /**
      * Linear Activation Function

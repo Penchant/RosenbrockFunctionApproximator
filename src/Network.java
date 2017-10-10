@@ -1,6 +1,4 @@
-import java.util.ArrayList;
 import java.util.List;
-import java.util.function.Function;
 import java.util.function.ToDoubleFunction;
 import java.util.stream.*;
 
@@ -10,9 +8,15 @@ public class Network {
     private List<Layer> layers;
 
     private int hiddenLayers;
+    private int inputCount;
+    private int nodesPerHiddenLayer;
+    private boolean isRadialBasis;
 
-    public Network(int hiddenLayers, int nodesPerHiddenLayer, int inputCount, int dimension, boolean isRadialBasis) {
+    public Network(int hiddenLayers, int nodesPerHiddenLayer, int inputCount, boolean isRadialBasis) {
         this.hiddenLayers = hiddenLayers;
+        this.inputCount = inputCount;
+        this.nodesPerHiddenLayer = nodesPerHiddenLayer;
+        this.isRadialBasis = isRadialBasis;
     }
 
     public void forwardPropogate() {}
