@@ -1,4 +1,6 @@
+import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Function;
 import java.util.function.ToDoubleFunction;
 import java.util.stream.*;
 
@@ -8,18 +10,82 @@ public class Network {
     private List<Layer> layers;
 
     private int hiddenLayers;
-    private int inputCount;
-    private int nodesPerHiddenLayer;
-    private boolean isRadialBasis;
 
-    public Network(int hiddenLayers, int nodesPerHiddenLayer, int inputCount, boolean isRadialBasis) {
+    public Network(int hiddenLayers, int nodesPerHiddenLayer, int inputCount, int dimension, boolean isRadialBasis) {
         this.hiddenLayers = hiddenLayers;
-        this.inputCount = inputCount;
-        this.nodesPerHiddenLayer = nodesPerHiddenLayer;
-        this.isRadialBasis = isRadialBasis;
     }
 
-    public void forwardPropogate() {}
+    /**
+     * This will return an output for each example in the examples list. 
+     * This will be used for batch updates as all examples will have their outputs calculated
+     * before weights can be adjusted. 
+     */
+    public List<Double> forwardPropogate() 
+    {
+        List<Double> output = new ArrayList<Double> ();
+        // For each example we set the input layer's node's inputs to the example value,
+        // then calculate the output for that example.
+        for (int i = 0; i < examples.size (); ++i)
+        {
+            List<Double> example = examples.get (i);
+            Layer input = layers.get (0);
+            // for each node in the input layer
+            for (int j = 0; j < input.nodes.length; ++j)
+            {
+                Node currentNode = input.nodes [j];
+                // for each dimension in the example we will have one input
+                for (int k = 0; k < example.size (); ++k)
+                {
+                    // if the node doesn't have enough inputs, add one.
+                    if (currentNode.inputs.size () < k)
+                    {
+                        currentNode.inputs.add(example.get (k));
+                    }
+                    else
+                    {
+                        currentNode.inputs.set (k, example.get (k));
+                    }
+                }
+            }
+
+            // Calculate the output for each layer and pass it into the next layer
+            for (int j = 0; j < layers.size (); ++j)
+            {
+                Layer currentLayer = layers.get (j);
+                List<Double> outputs = currentLayer.calculateNodeOutputs ();
+                // If we are not at the output layer, we are going to set the 
+                // next layers inputs to the current layers outputs.
+                if (j != layers.size () - 1)
+                {
+                    Layer nextLayer = layers.get (j + 1);
+                    // Grab each node in the layer
+                    for (int k = 0; k < nextLayer.nodes.length; ++k)
+                    {
+                        Node currentNode = nextLayer.nodes [k];
+                        // set each node's inputs to the outputs
+                        for (int l = 0; l < outputs.size (); ++l)
+                        {
+                            if (currentNode.inputs.size () < l)
+                            {
+                                currentNode.inputs.add (outputs.get (l));
+                            }
+                            else
+                            {
+                                currentNode.inputs.set(l, outputs.get (l));
+                            }
+                        }
+                    }
+                }
+                // Else we have hit the output and need to save it
+                else
+                {
+                    // Assume output has only one node. 
+                    output.add (outputs.get (0));
+                }
+            }
+        }
+        return output;
+    }
 
     public void backPropogate(){}
     public List<Double> calculateError(){return null;}
