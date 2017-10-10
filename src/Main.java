@@ -4,6 +4,7 @@ import javafx.scene.Scene;
 import javafx.scene.image.Image;
 import javafx.stage.Stage;
 import java.io.File;
+import java.net.URL;
 import java.util.function.Function;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
@@ -21,10 +22,10 @@ public class Main extends Application {
 
     @Override
     public void start(Stage primaryStage) throws Exception {
-        primaryStage.setScene(new Scene(FXMLLoader.load(new File("res/format.fxml").toURI().toURL()), 640, 480));
+        primaryStage.setScene(new Scene(FXMLLoader.load(getClass().getResource("res/format.fxml")), 640, 480));
         primaryStage.titleProperty().set("Rosenbrock Function Approximator");
         primaryStage.setResizable(false);
-        primaryStage.getIcons().add(new Image("file:res/rosenbrock.jpg"));
+        primaryStage.getIcons().add(new Image(getClass().getResourceAsStream("res/rosenbrock.jpg")));
         primaryStage.show();
     }
 
