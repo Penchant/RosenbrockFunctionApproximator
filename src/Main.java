@@ -104,7 +104,7 @@ public class Main extends Application {
                     if (args[i].equals(command.flag)) {
                         if (command.hasParam) {
                             i++;
-                            command.func.apply(Integer.parseInt(args[i]));
+                            command.func.apply(Double.parseDouble(args[i]));
                         } else {
                             command.func.apply(null);
                         }
