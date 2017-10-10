@@ -21,7 +21,7 @@ public class Layer {
                 .forEach(i -> nodes[i].updateWeights(weights.get(i)));
     }
 
-    public List<List<Double>> calculateNodeOutputs(){
+    public List<Double> calculateNodeOutputs(){
         return Stream.of(nodes).map(n -> n.calculateOutputs()).collect(Collectors.toList());
     }
 

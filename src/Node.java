@@ -1,5 +1,6 @@
 import java.util.List;
 import java.util.function.Function;
+import java.util.function.ToDoubleFunction;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
@@ -19,7 +20,7 @@ public class Node {
         this.nodeType = nodeType;
     }
 
-    public List<Double> calculateOutputs() {
+    public double calculateOutputs() {
         final Function<Double, Double> activationFunction;
 
         switch(nodeType) {
@@ -49,7 +50,7 @@ public class Node {
      * Function to calculate the output for each [Node]
      * Takes in a value and a weight and multiplies them
      */
-    private Function<Double[], Double> calculateOutput = values -> values[0] * values[1];
+    private ToDoubleFunction<Double[]> calculateOutput = values -> values[0] * values[1];
 
     /**
      * Linear Activation Function
