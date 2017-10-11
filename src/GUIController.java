@@ -32,7 +32,7 @@ public class GUIController implements Initializable {
 
     @FXML
     private void selectFile(MouseEvent event) {
-        Main.save();
+        Main.save("");
     }
 
     @FXML

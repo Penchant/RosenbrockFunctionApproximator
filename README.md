@@ -2,7 +2,7 @@
 Using neural network, basic backprop and radial basis function.
 Running without any parameters will open the GUI.  If you would rather use the command line, it is also optionally there.
 
-For help with the command line parameters, use `java Main -h`
+For help with the command line parameters, use `java -jar Rosenbrock.jar -h`
 
 
 | Flag      | Description                                          | Default    | Parameter    |
@@ -21,5 +21,5 @@ For help with the command line parameters, use `java Main -h`
 
 Example:
 ```
-java Main -nogui -rb -ds 0 -de 20 -di 1 -hl 2 -d 3 -n 7 -s
+java -jar Rosenbrock.jar -nogui -rb -ds 0 -de 20 -di 1 -hl 2 -d 3 -n 7 -s
 ```
