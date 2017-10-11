@@ -65,18 +65,22 @@ public class Main extends Application {
         }
     }
 
-    public static void save() {
-        FileChooser fileChooser = new FileChooser();
-        // TODO: Customise title
-        fileChooser.setTitle("TODO");
-        // TODO: Customise extensions
-        fileChooser.getExtensionFilters().addAll(
-                new ExtensionFilter("Text Files", "*.txt"),
-                new ExtensionFilter("Image Files", "*.png", "*.jpg", "*.gif"),
-                new ExtensionFilter("Audio Files", "*.wav", "*.mp3", "*.aac"),
-                new ExtensionFilter("All Files", "*.*"));
-        File selectedFile = fileChooser.showSaveDialog(primaryStage);
-        // TODO: Save
+    public static void save(String filename) {
+        if(filename.isEmpty()) {
+            FileChooser fileChooser = new FileChooser();
+            // TODO: Customise title
+            fileChooser.setTitle("TODO");
+            // TODO: Customise extensions
+            fileChooser.getExtensionFilters().addAll(
+                    new ExtensionFilter("Text Files", "*.txt"),
+                    new ExtensionFilter("Image Files", "*.png", "*.jpg", "*.gif"),
+                    new ExtensionFilter("Audio Files", "*.wav", "*.mp3", "*.aac"),
+                    new ExtensionFilter("All Files", "*.*"));
+            File selectedFile = fileChooser.showSaveDialog(primaryStage);
+            // TODO: Save
+        } else {
+
+        }
     }
 
     private static CommandLineParameter[] commands = {
@@ -132,7 +136,7 @@ public class Main extends Application {
             launch(args);
         } else {
             start(dataGenStart, dataGenEnd, dataGenIncrement, hiddenLayers, dimension, nodesPerHiddenLayer, isRadialBasis);
-            if(!savePath.isEmpty()) save();
+            if(!savePath.isEmpty()) save(savePath);
             System.exit(0);
         }
 
