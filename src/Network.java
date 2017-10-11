@@ -21,7 +21,36 @@ public class Network {
 
     public void forwardPropogate() {}
 
-    public void backPropogate(){}
+    /**
+     * Use forwardProp to get output layer
+     * @param outputs
+     * @param inputs
+     */
+    public void backPropogate(List<Double> outputs, List<Double> target){
+        List<Double> delta;
+        double newWeight = 0;
+        Layer currentLayer = layers.get(hiddenLayers+1);
+
+            Layer previousLayer = layers.get(hiddenLayers - i);
+
+            for (int i = 0; i < outputs.size(); i++) {
+                for(Double out:outputs)
+                delta.add((outputs.get(i) - target.get(i)) * outputs.get(1) * (1 - outputs.get(i)));
+            }
+            /**
+             * Loops through all Weights attached
+             */
+            for(Node currentNode : previousLayer.nodes){
+                //newWeight = delta* currentNode.weights;
+                for(Double currentWeight : currentNode.weights){
+
+                }
+            }
+
+
+
+
+    }
     public List<Double> calculateError(){return null;}
     private void kMeansCluster(int k){}
     private double calculateSigma(){return 0d;}
@@ -49,4 +78,18 @@ public class Network {
      */
     private ToDoubleFunction<Double[]> rosenbrock2D = values -> Math.pow(Math.pow(1 - values[0], 2) + 100 * (values[1] - Math.pow(values[0], 2)), 2);
 
+    /**
+     * Calculates total error from Rosenbrock inputs and output from nodes
+     * f(x) = sum(.5(expected-output)^2)
+     * @param nodeOutput from calculated node output
+     * @param inputs from rosenBrock
+     * @return squared error result
+     */
+    public double calculateTotalError(List<Double> outputs, List<Double> inputs) {
+        double error = 0;
+        for (int i = 0; i < outputs.size(); i++){
+            error = 0.5*(Math.pow((inputs.get(i)-outputs.get(i)), 2));
+        }
+        return error;
+    }
 }
