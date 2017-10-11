@@ -1,4 +1,6 @@
+import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Function;
 import java.util.function.ToDoubleFunction;
 import java.util.stream.*;
 
@@ -8,45 +10,105 @@ public class Network {
     private List<Layer> layers;
 
     private int hiddenLayers;
-    private int inputCount;
+    private int dimension;
     private int nodesPerHiddenLayer;
     private boolean isRadialBasis;
+    private double learningRate;
 
-    public Network(int hiddenLayers, int nodesPerHiddenLayer, int inputCount, boolean isRadialBasis) {
+    public Network(int hiddenLayers, int nodesPerHiddenLayer, int dimension, boolean isRadialBasis) {
         this.hiddenLayers = hiddenLayers;
-        this.inputCount = inputCount;
+        this.dimension = dimension;
         this.nodesPerHiddenLayer = nodesPerHiddenLayer;
         this.isRadialBasis = isRadialBasis;
     }
 
-    public void forwardPropogate() {}
+    /**
+     * This will return an output for each example in the examples list. 
+     * This will be used for batch updates as all examples will have their outputs calculated
+     * before weights can be adjusted. 
+     */
+    public List<Double> forwardPropogate() {
+        List<Double> output = new ArrayList<Double> ();
+        
+        // For each example we set the input layer's node's inputs to the example value,
+        // then calculate the output for that example.
+        for (int i = 0; i < examples.size (); ++i) {
+            List<Double> example = examples.get (i);
+            Layer input = layers.get (0);
+            // for each node in the input layer
+            for (int j = 0; j < input.nodes.length; ++j) {
+                Node currentNode = input.nodes.get(j);
+                // for each dimension in the example we will have one input
+                for (int k = 0; k < example.size (); ++k) {
+                    // if the node doesn't have enough inputs, add one.
+                    if (currentNode.inputs.size () < k) {
+                        currentNode.inputs.add(example.get (k));
+                    }
+                    else {
+                        currentNode.inputs.set (k, example.get (k));
+                    }
+                }
+            }
+
+            // Calculate the output for each layer and pass it into the next layer
+            for (int j = 0; j < layers.size (); ++j) {
+                Layer currentLayer = layers.get (j);
+                List<Double> outputs = currentLayer.calculateNodeOutputs ();
+                // If we are not at the output layer, we are going to set the 
+                // next layers inputs to the current layers outputs.
+                if (j != layers.size () - 1) {
+                    Layer nextLayer = layers.get (j + 1);
+                    // Grab each node in the layer
+                    for (int k = 0; k < nextLayer.nodes.length; ++k) {
+                        Node currentNode = nextLayer.nodes.get(k);
+                        // set each node's inputs to the outputs
+                        for (int l = 0; l < outputs.size (); ++l) {
+                            if (currentNode.inputs.size () < l) {
+                                currentNode.inputs.add (outputs.get (l));
+                            }
+                            else {
+                                currentNode.inputs.set(l, outputs.get (l));
+                            }
+                        }
+                    }
+                }
+                // Else we have hit the output and need to save it
+                else {
+                    // Assume output has only one node. 
+                    output.add (outputs.get (0));
+                }
+            }
+        }
+        return output;
+    }
 
     /**
      * Use forwardProp to get output layer
      * @param outputs
      * @param inputs
      */
-    public void backPropogate(List<Double> outputs, List<Double> target){
-        List<Double> delta;
+    public void backPropogate( List<Double> target){
+        List<Double> delta = new ArrayList<Double>();
         double newWeight = 0;
         Layer currentLayer = layers.get(hiddenLayers+1);
+        Layer previousLayer = layers.get(hiddenLayers);
+        List<Node> outputs = currentLayer.nodes;
 
-            Layer previousLayer = layers.get(hiddenLayers - i);
+        for(Node outputNode : outputs) {
+            delta.add((outputNode.output - target.get(0)) * outputNode.output * (1 - outputNode.output));
 
-            for (int i = 0; i < outputs.size(); i++) {
-                for(Double out:outputs)
-                delta.add((outputs.get(i) - target.get(i)) * outputs.get(1) * (1 - outputs.get(i)));
-            }
             /**
              * Loops through all Weights attached
              */
-            for(Node currentNode : previousLayer.nodes){
-                //newWeight = delta* currentNode.weights;
-                for(Double currentWeight : currentNode.weights){
-
-                }
+            for (Node currentNode : previousLayer.nodes) {
+                int i = previousLayer.nodes.indexOf(currentNode);
+                Double currentWeight = outputNode.weights.get(i);
+                Double weightChange = (delta.get(0)) * currentNode.output;
+                outputNode.weights.set(i, currentWeight - learningRate * weightChange);
             }
+        }
 
+        
 
 
 
