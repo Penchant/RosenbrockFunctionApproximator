@@ -18,7 +18,7 @@ public class Node {
         this.nodeType = nodeType;
     }
 
-    public double calculateOutput() {
+    public void calculateOutput() {
         final Function<Double, Double> activationFunction;
 
         switch(nodeType) {
@@ -38,8 +38,6 @@ public class Node {
                         .mapToDouble(calculateOutput)
                         .sum()
         );
-
-        return output;
     }
 
     public void updateWeights(List<Double> newWeights) {

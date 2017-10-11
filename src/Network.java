@@ -36,7 +36,7 @@ public class Network {
             List<Double> example = examples.get (i);
             Layer input = layers.get (0);
             // for each node in the input layer
-            for (int j = 0; j < input.nodes.length; ++j) {
+            for (int j = 0; j < input.nodes.size(); ++j) {
                 Node currentNode = input.nodes.get(j);
                 // for each dimension in the example we will have one input
                 for (int k = 0; k < example.size (); ++k) {
@@ -59,7 +59,7 @@ public class Network {
                 if (j != layers.size () - 1) {
                     Layer nextLayer = layers.get (j + 1);
                     // Grab each node in the layer
-                    for (int k = 0; k < nextLayer.nodes.length; ++k) {
+                    for (int k = 0; k < nextLayer.nodes.size(); ++k) {
                         Node currentNode = nextLayer.nodes.get(k);
                         // set each node's inputs to the outputs
                         for (int l = 0; l < outputs.size (); ++l) {
@@ -84,8 +84,7 @@ public class Network {
 
     /**
      * Use forwardProp to get output layer
-     * @param outputs
-     * @param inputs
+     * @param target
      */
     public void backPropogate( List<Double> target){
         List<Double> delta = new ArrayList<Double>();
@@ -95,12 +94,20 @@ public class Network {
         List<Node> outputs = currentLayer.nodes;
 
         for(Node outputNode : outputs) {
-            delta.add((outputNode.output - target.get(0)) * outputNode.output * (1 - outputNode.output));
+            // Sketch since assumes output layer and target lists are ordered the same
+            // Solved by having the output Node store the target
+            // Fine to assume
+            int index = outputs.indexOf(outputNode);
+            delta.add((outputNode.output - target.get(index)) * outputNode.output * (1 - outputNode.output));
 
             /**
              * Loops through all Weights attached
              */
             for (Node currentNode : previousLayer.nodes) {
+                // Sketch since assumed layer stores the nodes in the same order that the output node does
+                // Solved by having a dictionary of nodes and weights, rather than a list
+                // Assumption is fine because there is no initial intrinsic link between weights and nodes
+                // It justs ends up being additional initial randomness
                 int i = previousLayer.nodes.indexOf(currentNode);
                 Double currentWeight = outputNode.weights.get(i);
                 Double weightChange = (delta.get(0)) * currentNode.output;
@@ -143,7 +150,7 @@ public class Network {
     /**
      * Calculates total error from Rosenbrock inputs and output from nodes
      * f(x) = sum(.5(expected-output)^2)
-     * @param nodeOutput from calculated node output
+     * @param outputs from calculated node output
      * @param inputs from rosenBrock
      * @return squared error result
      */
