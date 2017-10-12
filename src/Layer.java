@@ -2,34 +2,44 @@ import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
+import java.util.ArrayList;
 
 public class Layer {
 
     private Type layerType;
-    public Node[] nodes;
+    public List<Node> nodes;
     public int layerCount;
 
     public Layer(int nodeCount, Type layerType) {
-        nodes = new Node[nodeCount];
-
         IntStream.range(0, nodeCount)
                 .boxed()
                 .parallel()
-                .forEach(i -> nodes[i] = new Node(layerType));
+                .forEach(i -> getNodeArray()[i] = new Node(layerType));
     }
 
     public void updateNodeWeights(List<List<Double>> weights) {
+
         IntStream.range(0, weights.size())
                 .boxed()
                 .parallel()
-                .forEach(i -> nodes[i].updateWeights(weights.get(i)));
+                .forEach(i -> getNodeArray()[i].updateWeights(weights.get(i)));
     }
 
     public List<Double> calculateNodeOutputs(){
-        return Stream.of(nodes)
+
+        return Stream.of(getNodeArray())
                 .parallel()
-                .map(n -> n.calculateOutput())
+                .map(i -> {
+                    i.calculateOutput();
+                    return i.output;
+                    }
+                )
                 .collect(Collectors.toList());
+    }
+
+    public Node[] getNodeArray()
+    {
+        return nodes.toArray(new Node[nodes.size()]);
     }
 
 }

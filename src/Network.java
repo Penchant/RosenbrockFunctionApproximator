@@ -13,6 +13,7 @@ public class Network {
     private int dimension;
     private int nodesPerHiddenLayer;
     private boolean isRadialBasis;
+    private double learningRate;
 
     public Network(int hiddenLayers, int nodesPerHiddenLayer, int dimension, boolean isRadialBasis) {
         this.hiddenLayers = hiddenLayers;
@@ -35,8 +36,8 @@ public class Network {
             List<Double> example = examples.get (i);
             Layer input = layers.get (0);
             // for each node in the input layer
-            for (int j = 0; j < input.nodes.length; ++j) {
-                Node currentNode = input.nodes [j];
+            for (int j = 0; j < input.nodes.size(); ++j) {
+                Node currentNode = input.nodes.get(j);
                 // for each dimension in the example we will have one input
                 for (int k = 0; k < example.size (); ++k) {
                     // if the node doesn't have enough inputs, add one.
@@ -58,8 +59,8 @@ public class Network {
                 if (j != layers.size () - 1) {
                     Layer nextLayer = layers.get (j + 1);
                     // Grab each node in the layer
-                    for (int k = 0; k < nextLayer.nodes.length; ++k) {
-                        Node currentNode = nextLayer.nodes [k];
+                    for (int k = 0; k < nextLayer.nodes.size(); ++k) {
+                        Node currentNode = nextLayer.nodes.get(k);
                         // set each node's inputs to the outputs
                         for (int l = 0; l < outputs.size (); ++l) {
                             if (currentNode.inputs.size () < l) {
@@ -81,7 +82,44 @@ public class Network {
         return output;
     }
 
-    public void backPropogate(){}
+    /**
+     * Use forwardProp to get output layer
+     * @param target
+     */
+    public void backPropogate( List<Double> target){
+        List<Double> delta = new ArrayList<Double>();
+        double newWeight = 0;
+        Layer currentLayer = layers.get(hiddenLayers+1);
+        Layer previousLayer = layers.get(hiddenLayers);
+        List<Node> outputs = currentLayer.nodes;
+
+        for(Node outputNode : outputs) {
+            // Sketch since assumes output layer and target lists are ordered the same
+            // Solved by having the output Node store the target
+            // Fine to assume
+            int index = outputs.indexOf(outputNode);
+            delta.add((outputNode.output - target.get(index)) * outputNode.output * (1 - outputNode.output));
+
+            /**
+             * Loops through all Weights attached
+             */
+            for (Node currentNode : previousLayer.nodes) {
+                // Sketch since assumed layer stores the nodes in the same order that the output node does
+                // Solved by having a dictionary of nodes and weights, rather than a list
+                // Assumption is fine because there is no initial intrinsic link between weights and nodes
+                // It justs ends up being additional initial randomness
+                int i = previousLayer.nodes.indexOf(currentNode);
+                Double currentWeight = outputNode.weights.get(i);
+                Double weightChange = (delta.get(0)) * currentNode.output;
+                outputNode.weights.set(i, currentWeight - learningRate * weightChange);
+            }
+        }
+
+        
+
+
+
+    }
     public List<Double> calculateError(){return null;}
     private void kMeansCluster(int k){}
     private double calculateSigma(){return 0d;}
@@ -109,4 +147,18 @@ public class Network {
      */
     private ToDoubleFunction<Double[]> rosenbrock2D = values -> Math.pow(Math.pow(1 - values[0], 2) + 100 * (values[1] - Math.pow(values[0], 2)), 2);
 
+    /**
+     * Calculates total error from Rosenbrock inputs and output from nodes
+     * f(x) = sum(.5(expected-output)^2)
+     * @param outputs from calculated node output
+     * @param inputs from rosenBrock
+     * @return squared error result
+     */
+    public double calculateTotalError(List<Double> outputs, List<Double> inputs) {
+        double error = 0;
+        for (int i = 0; i < outputs.size(); i++){
+            error = 0.5*(Math.pow((inputs.get(i)-outputs.get(i)), 2));
+        }
+        return error;
+    }
 }

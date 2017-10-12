@@ -10,6 +10,7 @@ public class Node {
     private Type nodeType;
     public List<Double> inputs;
     public List<Double> weights;
+    public double output;
 
     public double mu = 0;
 
@@ -17,7 +18,7 @@ public class Node {
         this.nodeType = nodeType;
     }
 
-    public double calculateOutput() {
+    public void calculateOutput() {
         final Function<Double, Double> activationFunction;
 
         switch(nodeType) {
@@ -29,13 +30,13 @@ public class Node {
             default:        activationFunction = linearActivation;   break;
         }
 
-        return activationFunction.apply(
+        output = activationFunction.apply(
                 IntStream.range(0, inputs.size())
-                    .boxed()
-                    .parallel()
-                    .map(i -> new Double[]{inputs.get(i), weights.get(i)})
-                    .mapToDouble(calculateOutput)
-                    .sum()
+                        .boxed()
+                        .parallel()
+                        .map(i -> new Double[]{inputs.get(i), weights.get(i)})
+                        .mapToDouble(calculateOutput)
+                        .sum()
         );
     }
 
