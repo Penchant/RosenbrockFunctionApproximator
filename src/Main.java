@@ -85,7 +85,7 @@ public class Main extends Application {
         try {
             final PrintWriter writer = new PrintWriter(fileToSave);
 
-            /*
+            /* Save to file in the following format
             l:
                 n: w1, w2, w3, w4, w5
                 n: w1, w2, w3, w4, w5
@@ -94,15 +94,13 @@ public class Main extends Application {
                 n: w1, w2, w3, w4, w5
              */
 
-            IntStream.range(0, network.layers.size())
-                .boxed()
-                .map(i -> network.layers.get(i))
+            network.layers.stream()
                 .forEach(layer -> {
                     writer.print("l: ");
-                    Stream.of(layer.nodes)
+                    Stream.of(layer.nodes) // TODO: Switch to layer.nodes.stream() Before merging your pr Dylan (Assuming this goes in first)
                         .forEach(node -> {
                             writer.print("\tn: ");
-                            Stream.of(node.weights)
+                            node.weights.stream()
                                 .map(weight -> weight + ", ")
                                 .forEach(writer::print);
                             writer.println();
