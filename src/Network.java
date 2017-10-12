@@ -1,13 +1,12 @@
 import java.util.ArrayList;
 import java.util.List;
-import java.util.function.Function;
 import java.util.function.ToDoubleFunction;
 import java.util.stream.*;
 
 public class Network {
 
     private List<List<Double>> examples;
-    private List<Layer> layers;
+    public List<Layer> layers;
 
     private int hiddenLayers;
     private int dimension;

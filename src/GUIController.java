@@ -15,7 +15,12 @@ public class GUIController implements Initializable {
 
     @Override
     public void initialize(URL url, ResourceBundle rb) {
-        progressBar.setProgress(0d);
+        setDataGenStartTextField(Main.dataGenStart);
+        setDataGenEndTextField(Main.dataGenEnd);
+        setDataGenIncrementTextField(Main.dataGenIncrement);
+        setHiddenLayersTextField(Main.hiddenLayers);
+        setNodesPerHiddenLayerTextField(Main.nodesPerHiddenLayer);
+        setInputCountTextField(Main.dimension);
     }
 
     @FXML private Button selectFileButton;
@@ -27,7 +32,37 @@ public class GUIController implements Initializable {
     @FXML private TextField inputCountTextField;
     @FXML private TextField nodesPerHiddenLayerTextField;
     @FXML private CheckBox isRadialBasisCheckbox;
-    
+
+    public TextField setDataGenStartTextField(double value) {
+        dataGenStartTextField.setText("" + value);
+        return dataGenStartTextField;
+    }
+
+    public TextField setDataGenEndTextField(double value) {
+        dataGenEndTextField.setText("" + value);
+        return dataGenEndTextField;
+    }
+
+    public TextField setDataGenIncrementTextField(double value) {
+        dataGenIncrementTextField.setText("" + value);
+        return dataGenIncrementTextField;
+    }
+
+    public TextField setHiddenLayersTextField(int value) {
+        hiddenLayersTextField.setText("" + value);
+        return hiddenLayersTextField;
+    }
+
+    public TextField setInputCountTextField(int value) {
+        inputCountTextField.setText("" + value);
+        return inputCountTextField;
+    }
+
+    public TextField setNodesPerHiddenLayerTextField(int value) {
+        nodesPerHiddenLayerTextField.setText("" + value);
+        return nodesPerHiddenLayerTextField;
+    }
+
     @FXML public ProgressBar progressBar;
 
     @FXML
