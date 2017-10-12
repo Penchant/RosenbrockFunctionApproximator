@@ -7,18 +7,19 @@ public class Node {
 
     public static double sigma = 0;
 
-    private Type nodeType;
     public List<Double> inputs;
     public List<Double> weights;
-    public double output;
 
+    public double output;
     public double mu = 0;
+
+    private Type nodeType;
 
     public Node(Type nodeType) {
         this.nodeType = nodeType;
     }
 
-    public void calculateOutput() {
+    public double calculateOutput() {
         final Function<Double, Double> activationFunction;
 
         switch(nodeType) {
@@ -30,7 +31,7 @@ public class Node {
             default:        activationFunction = linearActivation;   break;
         }
 
-        output = activationFunction.apply(
+        return output = activationFunction.apply(
                 IntStream.range(0, inputs.size())
                         .boxed()
                         .parallel()
