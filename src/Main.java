@@ -82,6 +82,8 @@ public class Main extends Application {
             fileToSave = new File(filename);
         }
 
+        if(fileToSave == null) return;
+
         try {
             final PrintWriter writer = new PrintWriter(fileToSave);
 
