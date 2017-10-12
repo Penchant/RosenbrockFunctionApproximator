@@ -76,7 +76,7 @@ public class Main extends Application {
         if(filename.isEmpty()) {
             FileChooser fileChooser = new FileChooser();
             fileChooser.setTitle("Choose a file to save the weights to.");
-            fileChooser.getExtensionFilters().add(new ExtensionFilter("Weights Activation Type", "*.wat"));
+            fileChooser.getExtensionFilters().add(new ExtensionFilter("Weights", "*.w8"));
             fileToSave = fileChooser.showSaveDialog(primaryStage);
         } else {
             fileToSave = new File(filename);
