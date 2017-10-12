@@ -1,6 +1,5 @@
 import java.util.ArrayList;
 import java.util.List;
-import java.util.function.Function;
 import java.util.function.ToDoubleFunction;
 import java.util.stream.*;
 
@@ -13,6 +12,7 @@ public class Network {
     private int dimension;
     private int nodesPerHiddenLayer;
     private boolean isRadialBasis;
+
     private double learningRate;
 
     public Network(int hiddenLayers, int nodesPerHiddenLayer, int dimension, boolean isRadialBasis) {
@@ -23,9 +23,9 @@ public class Network {
     }
 
     /**
-     * This will return an output for each example in the examples list. 
-     * This will be used for batch updates as all examples will have their outputs calculated
-     * before weights can be adjusted. 
+     * TODO: write a description of forward propogation
+     * Used for batch updates, where all examples will have their outputs calculated
+     * @return A [List] containing the output for each example in the examples list.
      */
     public List<Double> forwardPropogate() {
         List<Double> output = new ArrayList<Double> ();
@@ -43,8 +43,7 @@ public class Network {
                     // if the node doesn't have enough inputs, add one.
                     if (currentNode.inputs.size () < k) {
                         currentNode.inputs.add(example.get (k));
-                    }
-                    else {
+                    } else {
                         currentNode.inputs.set (k, example.get (k));
                     }
                 }
@@ -65,15 +64,12 @@ public class Network {
                         for (int l = 0; l < outputs.size (); ++l) {
                             if (currentNode.inputs.size () < l) {
                                 currentNode.inputs.add (outputs.get (l));
-                            }
-                            else {
+                            } else {
                                 currentNode.inputs.set(l, outputs.get (l));
                             }
                         }
                     }
-                }
-                // Else we have hit the output and need to save it
-                else {
+                } else { // Else we have hit the output and need to save it
                     // Assume output has only one node. 
                     output.add (outputs.get (0));
                 }
@@ -86,7 +82,7 @@ public class Network {
      * Use forwardProp to get output layer
      * @param target
      */
-    public void backPropogate( List<Double> target){
+    public void backPropogate(List<Double> target) {
         List<Double> delta = new ArrayList<Double>();
         double newWeight = 0;
         Layer currentLayer = layers.get(hiddenLayers+1);
@@ -114,12 +110,8 @@ public class Network {
                 outputNode.weights.set(i, currentWeight - learningRate * weightChange);
             }
         }
-
-        
-
-
-
     }
+
     public List<Double> calculateError(){return null;}
     private void kMeansCluster(int k){}
     private double calculateSigma(){return 0d;}
@@ -155,10 +147,8 @@ public class Network {
      * @return squared error result
      */
     public double calculateTotalError(List<Double> outputs, List<Double> inputs) {
-        double error = 0;
-        for (int i = 0; i < outputs.size(); i++){
-            error = 0.5*(Math.pow((inputs.get(i)-outputs.get(i)), 2));
-        }
-        return error;
+        return IntStream.range(0, outputs.size())
+                .mapToDouble(i -> 0.5d*(Math.pow((inputs.get(i)-outputs.get(i)), 2)))
+                .sum();
     }
 }

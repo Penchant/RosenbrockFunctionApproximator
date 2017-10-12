@@ -5,9 +5,6 @@ import javafx.scene.control.CheckBox;
 import javafx.scene.control.ProgressBar;
 import javafx.scene.control.TextField;
 import javafx.scene.input.MouseEvent;
-import javafx.stage.FileChooser;
-
-import java.io.File;
 import java.net.URL;
 import java.util.ResourceBundle;
 
