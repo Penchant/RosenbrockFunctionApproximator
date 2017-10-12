@@ -7,14 +7,19 @@ import javafx.stage.FileChooser.*;
 import javafx.stage.Stage;
 
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.PrintWriter;
 import java.util.Formatter;
 import java.util.function.Function;
+import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
 public class Main extends Application {
 
     private static Stage primaryStage;
     private static GUIController controller;
+
+    private static Network network;
 
     private static boolean shouldStop = false;
 
@@ -50,7 +55,7 @@ public class Main extends Application {
     private static double progress = 0;
 
     public static void start (double dataGenStart, double dataGenEnd, double dataGenIncrement, int hiddenLayers, int inputCount, int nodesPerHiddenLater, boolean isRadialBasis) {
-        Network network = new Network(hiddenLayers, nodesPerHiddenLater, inputCount, isRadialBasis);
+        network = new Network(hiddenLayers, nodesPerHiddenLater, inputCount, isRadialBasis);
 
         // "Test" the progress bar
         if(useGUI) {
@@ -66,20 +71,47 @@ public class Main extends Application {
     }
 
     public static void save(String filename) {
+        File fileToSave = null;
+
         if(filename.isEmpty()) {
             FileChooser fileChooser = new FileChooser();
-            // TODO: Customise title
-            fileChooser.setTitle("TODO");
-            // TODO: Customise extensions
-            fileChooser.getExtensionFilters().addAll(
-                    new ExtensionFilter("Text Files", "*.txt"),
-                    new ExtensionFilter("Image Files", "*.png", "*.jpg", "*.gif"),
-                    new ExtensionFilter("Audio Files", "*.wav", "*.mp3", "*.aac"),
-                    new ExtensionFilter("All Files", "*.*"));
-            File selectedFile = fileChooser.showSaveDialog(primaryStage);
-            // TODO: Save
+            fileChooser.setTitle("Choose a file to save the weights to.");
+            fileChooser.getExtensionFilters().add(new ExtensionFilter("Weights Activation Type", "*.wat"));
+            fileToSave = fileChooser.showSaveDialog(primaryStage);
         } else {
+            fileToSave = new File(filename);
+        }
 
+        try {
+            final PrintWriter writer = new PrintWriter(fileToSave);
+
+            /*
+            l:
+                n: w1, w2, w3, w4, w5
+                n: w1, w2, w3, w4, w5
+            l:
+                n: w1, w2, w3, w4, w5
+                n: w1, w2, w3, w4, w5
+             */
+
+            IntStream.range(0, network.layers.size())
+                .boxed()
+                .map(i -> network.layers.get(i))
+                .forEach(layer -> {
+                    writer.print("l: ");
+                    Stream.of(layer.nodes)
+                        .forEach(node -> {
+                            writer.print("\tn: ");
+                            Stream.of(node.weights)
+                                .map(weight -> weight + ", ")
+                                .forEach(writer::print);
+                            writer.println();
+                        });
+                    writer.println();
+                });
+            writer.close();
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
         }
     }
 
@@ -98,9 +130,20 @@ public class Main extends Application {
 
     private static boolean printHelp() {
         // Prints as git table
-        System.out.format("| %-9s | %-52s | %-10s | %-12s |\n", "Flag", "Description", "Default", "Parameter");
-        System.out.println(String.format("| %-9s | %-52s |:%-10s:|:%-12s:|", "", "", "", "").replaceAll(" ", "-"));
-        // System.out.format("%-9s%-52s%-10s%-12s\n", "Flag", "Description", "Default", "Param"); Alternate option
+        // Prints headers
+        System.out.format("| %-" + CommandLineParameter.flagLength + "s | " +
+                "%-" + CommandLineParameter.descriptionLength + "s | " +
+                "%-" + CommandLineParameter.defaultLength + "s | " +
+                "%-" + CommandLineParameter.parameterLength + "s |\n",
+                "Flag", "Description", "Default", "Parameter");
+
+        // Prints the lines below the header
+        System.out.println(String.format("| %-" + CommandLineParameter.flagLength + "s | " +
+                "%-" + CommandLineParameter.descriptionLength + "s |:" +
+                "%-" + CommandLineParameter.defaultLength + "s:|:" +
+                "%-" + CommandLineParameter.parameterLength + "s:|", "", "", "", "")
+                .replaceAll(" ", "-"));
+
         Stream.of(commands).forEach(System.out::println);
         System.exit(0);
         return false;
@@ -120,9 +163,9 @@ public class Main extends Application {
                     if (args[i].equals(command.flag)) {
                         switch(command.paramType) {
                             case Integer: command.func.apply(Integer.parseInt(args[++i])); break;
-                            case Double: command.func.apply(Double.parseDouble(args[++i])); break;
-                            case String: command.func.apply(args[++i]); break;
-                            case Void: command.func.apply(0); break;
+                            case Double:  command.func.apply(Double.parseDouble(args[++i])); break;
+                            case String:  command.func.apply(args[++i]); break;
+                            case Void:    command.func.apply(0); break;
                         }
                     }
                 }
@@ -147,6 +190,11 @@ public class Main extends Application {
      */
     private static class CommandLineParameter {
 
+        public static int flagLength = 6;
+        public static int descriptionLength = 49;
+        public static int defaultLength = 7;
+        public static int parameterLength = 9;
+
         private String flag;
         private String helpText;
         private Object defaultValue;
@@ -169,22 +217,22 @@ public class Main extends Application {
         }
 
         private String toTable(String startFormat, String endFormat) {
-            String gitFormatMiddle = "";
+            String formatMiddle = "";
 
             switch(paramType) {
-                case Integer: gitFormatMiddle = "%-10d"; break;
-                case Double:  gitFormatMiddle = "%.3f     "; break;
-                case String:  gitFormatMiddle = "%-10s"; break;
-                case Void: gitFormatMiddle = "%-10s"; break;
+                case Integer: formatMiddle = "%-" + defaultLength + "d"; break;
+                case Double:  formatMiddle = "%.3f" + String.format("%" + (defaultLength - 5) + "s", ""); break;
+                case String:  formatMiddle = "%-" + defaultLength + "s"; break;
+                case Void:    formatMiddle = "%-" + defaultLength + "s"; break;
             }
 
-            return new Formatter().format(startFormat + gitFormatMiddle + endFormat, flag, helpText, defaultValue == null ? "" : defaultValue, paramType).toString();
+            return String.format(startFormat + formatMiddle + endFormat, flag, helpText, defaultValue == null ? "" : defaultValue, paramType).toString();
         }
 
         @Override
         public String toString() {
             // return toTable("%-9s%-52s", "%-12s"); Alternate option
-            return toTable("| %-9s | %-52s | ", " | %-12s |");
+            return toTable("| %-" + flagLength + "s | %-" + descriptionLength  + "s | ", " | %-" + parameterLength + "s |");
         }
 
     }
