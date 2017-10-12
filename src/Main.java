@@ -25,12 +25,12 @@ public class Main extends Application {
 
     private static boolean useGUI = true;
     private static boolean isRadialBasis = false;
-    private static double dataGenStart;
-    private static double dataGenEnd;
-    private static double dataGenIncrement;
-    private static int hiddenLayers;
-    private static int dimension;
-    private static int nodesPerHiddenLayer;
+    public static double dataGenStart;
+    public static double dataGenEnd;
+    public static double dataGenIncrement;
+    public static int hiddenLayers;
+    public static int dimension;
+    public static int nodesPerHiddenLayer;
     private static String savePath;
 
     @Override
@@ -120,11 +120,11 @@ public class Main extends Application {
             new CommandLineParameter("-h",      "Displays the help text",                             f -> printHelp(),                   null,  CommandLineParameter.Type.Void),     // Help
             new CommandLineParameter("-rb",     "Sets the network to use radial basis",               f -> isRadialBasis = true,          false, CommandLineParameter.Type.Void),     // Radial Basis
             new CommandLineParameter("-ds",     "The start point for the data (example) generation",  i -> dataGenStart = (double) i,     0d,    CommandLineParameter.Type.Double),   // Data Generation Start
-            new CommandLineParameter("-de",     "The end point for the data (example) generation",    i -> dataGenEnd = (double) i,       0d,    CommandLineParameter.Type.Double),   // Data Generation End
-            new CommandLineParameter("-di",     "The incrementation of the data point",               i -> dataGenIncrement = (double) i, 0d,    CommandLineParameter.Type.Double),   // Data Generation Incrementation
-            new CommandLineParameter("-hl",     "The amount of hidden layers",                        i -> hiddenLayers = (int) i,        0,     CommandLineParameter.Type.Integer),  // Hidden Layers
+            new CommandLineParameter("-de",     "The end point for the data (example) generation",    i -> dataGenEnd = (double) i,      20d,    CommandLineParameter.Type.Double),   // Data Generation End
+            new CommandLineParameter("-di",     "The incrementation of the data point",               i -> dataGenIncrement = (double) i, 0.1d,  CommandLineParameter.Type.Double),   // Data Generation Incrementation
+            new CommandLineParameter("-hl",     "The amount of hidden layers",                        i -> hiddenLayers = (int) i,        1,     CommandLineParameter.Type.Integer),  // Hidden Layers
             new CommandLineParameter("-d",      "The number of dimensions the function will use",     i -> dimension = (int) i,           2,     CommandLineParameter.Type.Integer),  // Dimensions
-            new CommandLineParameter("-n",      "The number of nodes per hidden layer",               i -> nodesPerHiddenLayer = (int) i, 0,     CommandLineParameter.Type.Integer),  // Nodes Per Hidden Layer
+            new CommandLineParameter("-n",      "The number of nodes per hidden layer",               i -> nodesPerHiddenLayer = (int) i, 3,     CommandLineParameter.Type.Integer),  // Nodes Per Hidden Layer
             new CommandLineParameter("-s",      "Save the weights to a given output file",            s -> savePath = (String) s,         "",    CommandLineParameter.Type.String),   // Save
     };
 
@@ -221,12 +221,12 @@ public class Main extends Application {
 
             switch(paramType) {
                 case Integer: formatMiddle = "%-" + defaultLength + "d"; break;
-                case Double:  formatMiddle = "%.3f" + String.format("%" + (defaultLength - 5) + "s", ""); break;
+                case Double:  formatMiddle = "%.3f" + String.format("%" + (defaultLength - 4 - ("" + (int) Math.floor( (double) defaultValue)).length()) + "s", ""); break;
                 case String:  formatMiddle = "%-" + defaultLength + "s"; break;
                 case Void:    formatMiddle = "%-" + defaultLength + "s"; break;
             }
 
-            return String.format(startFormat + formatMiddle + endFormat, flag, helpText, defaultValue == null ? "" : defaultValue, paramType).toString();
+            return String.format(startFormat + formatMiddle + endFormat, flag, helpText, defaultValue == null ? "" : defaultValue, paramType);
         }
 
         @Override
