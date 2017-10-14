@@ -9,7 +9,9 @@ import javafx.stage.Stage;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.PrintWriter;
+import java.util.ArrayList;
 import java.util.Formatter;
+import java.util.List;
 import java.util.function.Function;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
@@ -55,7 +57,9 @@ public class Main extends Application {
     private static double progress = 0;
 
     public static void start (double dataGenStart, double dataGenEnd, double dataGenIncrement, int hiddenLayers, int inputCount, int nodesPerHiddenLater, boolean isRadialBasis) {
-        network = new Network(hiddenLayers, nodesPerHiddenLater, inputCount, isRadialBasis);
+
+        //Create network with examples from data generation
+        network = new Network(hiddenLayers, nodesPerHiddenLater, inputCount, isRadialBasis, dataGeneration(dataGenStart, dataGenEnd, dataGenIncrement, inputCount, Network::rosenbrock));
 
         // "Test" the progress bar
         if(useGUI) {
@@ -68,6 +72,70 @@ public class Main extends Application {
 
             timer.start();
         }
+    }
+
+    /**
+     *  Generates examples of given function
+     * @param dataGenStart start of range for data
+     * @param dataGenEnd end of range for data
+     * @param dataGenIncrement how much to increment between each data point
+     * @param dimension how many dimensions to generate data in
+     * @param functionToApproximate function to generate outputs from
+     * @return List of examples of given function in given number of dimensions through range given, with given increment
+     */
+    public static List<List<Double>> dataGeneration(double dataGenStart, double dataGenEnd, double dataGenIncrement, int dimension, Function<double[], Double> functionToApproximate)
+    {
+        List<List<Double>> examples = new ArrayList<List<Double>>();
+        double range = Math.abs(dataGenEnd - dataGenStart);
+        int numExamples = (int)(range/dataGenIncrement);
+
+        //Create List with appropriate number of examples
+        for (int i = 0; i < numExamples; i++) {
+            examples.add( new ArrayList<Double>());
+        }
+
+        // Initialize for lists to have space for inputs and output
+        for (List<Double> example : examples) {
+            for (int i = 0; i <= dimension; i++) {
+                example.add(0d);
+            }
+        }
+
+        //Create point counter and initialize
+        List <Double> point = new ArrayList<Double>(){};
+        for(int i = 0; i < dimension; i++){
+            point.add(dataGenStart);
+        }
+
+        for(int i = 0; i < numExamples; i++) {
+
+            //Move data from point to separate list to not modify dimensions of point
+            List<Double> calculatedPoint = new ArrayList<Double>();
+            for (int j = 0; j < dimension; j++) {
+                calculatedPoint.add(point.get(j));
+            }
+
+            //Calculate output and add to end of list
+            double[] inputs = calculatedPoint.stream().mapToDouble(d -> d).toArray();
+            calculatedPoint.add(functionToApproximate.apply(inputs));
+
+            examples.add(calculatedPoint); //Add calculated point as example
+            boolean carry = true; //Carry flag for arithmetic ahead
+
+            for (int k = dimension - 1; k >= 0; k++) {
+                if (carry) {
+                    //If over dataGenEnd, carry flag stays set and current dimension is set to dataGenStart
+                    if (point.get(k) + dataGenIncrement > dataGenEnd)
+                        point.set(k, dataGenStart);
+                    else {
+                        point.set(k, point.get(k) + dataGenIncrement);
+                        carry = false;
+                    }
+                }
+            }
+        }
+
+        return examples;
     }
 
     public static void save(String filename) {
@@ -99,9 +167,10 @@ public class Main extends Application {
             network.layers.stream()
                 .forEach(layer -> {
                     writer.print("l: ");
-                    Stream.of(layer.nodes) // TODO: Switch to layer.nodes.stream() Before merging your pr Dylan (Assuming this goes in first)
+                    layer.nodes.stream() // TODO: Switch to layer.nodes.stream() Before merging your pr Dylan (Assuming this goes in first)
                         .forEach(node -> {
                             writer.print("\tn: ");
+
                             node.weights.stream()
                                 .map(weight -> weight + ", ")
                                 .forEach(writer::print);
