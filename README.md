@@ -1,4 +1,6 @@
 # RosenbrockFunctionApproximator
+
+[![Build Status](https://travis-ci.org/Penchant/RosenbrockFunctionApproximator.svg?branch=master)](https://travis-ci.org/Penchant/RosenbrockFunctionApproximator)  
 Using neural network, basic backprop and radial basis function.
 Running without any parameters will open the GUI.  If you would rather use the command line, it is also optionally there.
 
