@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project name="rosenbrockfunctionapproximator" default="all">
-  
+
+  <property environment="env"/>
   <!-- Uncomment the following property if no tests compilation is needed -->
   <!-- 
   <property name="skip.tests" value="true"/>
@@ -52,9 +53,9 @@
   
   <!-- JDK definitions -->
   
-  <property name="jdk.bin.1.8" value="/usr/lib/jvm/java-8-oracle/bin"/>
+  <property name="jdk.bin.1.8" value="${env.JAVA_HOME}/bin"/>
   <path id="jdk.classpath.1.8">
-    <fileset dir="/usr/lib/jvm/java-8-oracle">
+    <fileset dir="${env.JAVA_HOME}">
       <include name="jre/lib/charsets.jar"/>
       <include name="jre/lib/deploy.jar"/>
       <include name="jre/lib/ext/access-bridge-64.jar"/>
@@ -81,7 +82,7 @@
     </fileset>
   </path>
   
-  <property name="project.jdk.home" value="/usr/lib/jvm/java-8-oracle"/>
+  <property name="project.jdk.home" value="${env.JAVA_HOME}"/>
   <property name="project.jdk.bin" value="${jdk.bin.1.8}"/>
   <property name="project.jdk.classpath" value="jdk.classpath.1.8"/>
   
