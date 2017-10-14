@@ -81,7 +81,7 @@
     </fileset>
   </path>
   
-  <property name="project.jdk.home" value="${JAVA_HOME}"/>
+  <property name="project.jdk.home" value="${JAVA_HOME}/bin"/>
   <property name="project.jdk.bin" value="${jdk.bin.1.8}"/>
   <property name="project.jdk.classpath" value="jdk.classpath.1.8"/>
   
