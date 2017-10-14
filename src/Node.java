@@ -7,12 +7,13 @@ public class Node {
 
     public static double sigma = 0;
 
-    private Type nodeType;
     public List<Double> inputs;
     public List<Double> weights;
-    public double output;
 
+    public double output;
     public double mu = 0;
+
+    private Type nodeType;
 
     public Node(Type nodeType) {
         this.nodeType = nodeType;
@@ -30,7 +31,7 @@ public class Node {
             default:        activationFunction = linearActivation;   break;
         }
 
-        output = activationFunction.apply(
+        return output = activationFunction.apply(
                 IntStream.range(0, inputs.size())
                         .boxed()
                         .parallel()
@@ -38,8 +39,6 @@ public class Node {
                         .mapToDouble(calculateOutput)
                         .sum()
         );
-
-        return output;
     }
 
     public void updateWeights(List<Double> newWeights) {

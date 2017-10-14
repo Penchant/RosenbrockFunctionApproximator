@@ -13,6 +13,8 @@ public class Network {
     private int nodesPerHiddenLayer;
     private boolean isRadialBasis;
 
+    private double learningRate;
+
     public Network(int hiddenLayers, int nodesPerHiddenLayer, int dimension, boolean isRadialBasis) {
         this.hiddenLayers = hiddenLayers;
         this.dimension = dimension;
@@ -21,9 +23,9 @@ public class Network {
     }
 
     /**
-     * This will return an output for each example in the examples list. 
-     * This will be used for batch updates as all examples will have their outputs calculated
-     * before weights can be adjusted. 
+     * TODO: write a description of forward propogation
+     * Used for batch updates, where all examples will have their outputs calculated
+     * @return A [List] containing the output for each example in the examples list.
      */
     public List<Double> forwardPropogate() {
         List<Double> output = new ArrayList<Double> ();
@@ -34,15 +36,14 @@ public class Network {
             List<Double> example = examples.get (i);
             Layer input = layers.get (0);
             // for each node in the input layer
-            for (int j = 0; j < input.nodes.length; ++j) {
-                Node currentNode = input.nodes [j];
+            for (int j = 0; j < input.nodes.size(); ++j) {
+                Node currentNode = input.nodes.get(j);
                 // for each dimension in the example we will have one input
                 for (int k = 0; k < example.size (); ++k) {
                     // if the node doesn't have enough inputs, add one.
                     if (currentNode.inputs.size () < k) {
                         currentNode.inputs.add(example.get (k));
-                    }
-                    else {
+                    } else {
                         currentNode.inputs.set (k, example.get (k));
                     }
                 }
@@ -57,21 +58,18 @@ public class Network {
                 if (j != layers.size () - 1) {
                     Layer nextLayer = layers.get (j + 1);
                     // Grab each node in the layer
-                    for (int k = 0; k < nextLayer.nodes.length; ++k) {
-                        Node currentNode = nextLayer.nodes [k];
+                    for (int k = 0; k < nextLayer.nodes.size(); ++k) {
+                        Node currentNode = nextLayer.nodes.get(k);
                         // set each node's inputs to the outputs
                         for (int l = 0; l < outputs.size (); ++l) {
                             if (currentNode.inputs.size () < l) {
                                 currentNode.inputs.add (outputs.get (l));
-                            }
-                            else {
+                            } else {
                                 currentNode.inputs.set(l, outputs.get (l));
                             }
                         }
                     }
-                }
-                // Else we have hit the output and need to save it
-                else {
+                } else { // Else we have hit the output and need to save it
                     // Assume output has only one node. 
                     output.add (outputs.get (0));
                 }
@@ -80,7 +78,33 @@ public class Network {
         return output;
     }
 
-    public void backPropogate(){}
+    /**
+     * Use forwardProp to get output layer
+     * @param target
+     */
+    public void backPropogate(List<Double> target) {
+        List<Double> delta = new ArrayList<Double>();
+        double newWeight = 0;
+        Layer currentLayer = layers.get(hiddenLayers+1);
+        Layer previousLayer = layers.get(hiddenLayers);
+        List<Node> outputs = currentLayer.nodes;
+
+        for(Node outputNode : outputs) {
+            int index = outputs.indexOf(outputNode);
+            delta.add((outputNode.output - target.get(index)) * outputNode.output * (1 - outputNode.output));
+
+            /**
+             * Loops through all Weights attached
+             */
+            for (Node currentNode : previousLayer.nodes) {
+                int i = previousLayer.nodes.indexOf(currentNode);
+                Double currentWeight = outputNode.weights.get(i);
+                Double weightChange = (delta.get(0)) * currentNode.output;
+                outputNode.weights.set(i, currentWeight - learningRate * weightChange);
+            }
+        }
+    }
+
     public List<Double> calculateError(){return null;}
     private void kMeansCluster(int k){}
     private double calculateSigma(){return 0d;}
@@ -108,4 +132,16 @@ public class Network {
      */
     private ToDoubleFunction<Double[]> rosenbrock2D = values -> Math.pow(Math.pow(1 - values[0], 2) + 100 * (values[1] - Math.pow(values[0], 2)), 2);
 
+    /**
+     * Calculates total error from Rosenbrock inputs and output from nodes
+     * f(x) = sum(.5(expected-output)^2)
+     * @param outputs from calculated node output
+     * @param inputs from rosenBrock
+     * @return squared error result
+     */
+    public double calculateTotalError(List<Double> outputs, List<Double> inputs) {
+        return IntStream.range(0, outputs.size())
+                .mapToDouble(i -> 0.5d*(Math.pow((inputs.get(i)-outputs.get(i)), 2)))
+                .sum();
+    }
 }
