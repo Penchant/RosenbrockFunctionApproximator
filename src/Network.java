@@ -86,7 +86,9 @@ public class Network {
     public void backPropogate(List<Double> target) {
         List<Double> delta = new ArrayList<Double>();
         double newWeight = 0;
+
         Layer currentLayer = layers.get(hiddenLayers + 1);
+
         Layer previousLayer = layers.get(hiddenLayers);
         List<Node> outputs = currentLayer.nodes;
 
@@ -104,6 +106,7 @@ public class Network {
                 outputNode.weights.set(i, currentWeight - learningRate * weightChange);
             }
         }
+
 
         //Starting iteration at hidden layer
         for (int l = hiddenLayers; l>0; l--) {
@@ -136,6 +139,7 @@ public class Network {
                 }
             }
         }
+
     }
 
     public List<Double> calculateError(){return null;}

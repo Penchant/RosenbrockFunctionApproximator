@@ -8,6 +8,7 @@ public class Layer {
     public int nodeCount;
     public Type layerType;
 
+
     public Layer(int nodeCount, Type layerType) {
         this.nodeCount = nodeCount;
         this.layerType = layerType;
