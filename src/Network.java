@@ -15,7 +15,7 @@ public class Network {
 
     private double learningRate;
 
-    public Network(int hiddenLayers, int nodesPerHiddenLayer, int dimension, boolean isRadialBasis) {
+    public Network(int hiddenLayers, int nodesPerHiddenLayer, int dimension, boolean isRadialBasis, List<List<Double>> examples) {
         this.hiddenLayers = hiddenLayers;
         this.dimension = dimension;
         this.nodesPerHiddenLayer = nodesPerHiddenLayer;
@@ -115,7 +115,7 @@ public class Network {
      * @param values Input values for the function of any dimension
      * @return The result of applying to Rosenbrock function to the given input
      */
-    private double rosenbrock(double ... values) {
+    public static double rosenbrock(double ... values) {
         return IntStream.range(0, values.length - 2)
                 .boxed()
                 .parallel()
@@ -130,7 +130,7 @@ public class Network {
      * @param values 2D input values for the function
      * @return The result of applying to Rosenbrock function to the given input
      */
-    private ToDoubleFunction<Double[]> rosenbrock2D = values -> Math.pow(Math.pow(1 - values[0], 2) + 100 * (values[1] - Math.pow(values[0], 2)), 2);
+    private static ToDoubleFunction<Double[]> rosenbrock2D = values -> Math.pow(Math.pow(1 - values[0], 2) + 100 * (values[1] - Math.pow(values[0], 2)), 2);
 
     /**
      * Calculates total error from Rosenbrock inputs and output from nodes
