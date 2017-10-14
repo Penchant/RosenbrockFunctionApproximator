@@ -125,7 +125,7 @@ public class Network {
                 for(double weight : hiddenNode.weights ){
                     int i = previousLayer.nodes.indexOf(hiddenNode);
                     int j = layers.indexOf(currentLayer);
-                    deltaWeightSum = delta.get(j)*hiddenNode.weights.get(i);
+                    deltaWeightSum += delta.get(j)*hiddenNode.weights.get(i);
                 }
 
                 delta.add(deltaWeightSum);
