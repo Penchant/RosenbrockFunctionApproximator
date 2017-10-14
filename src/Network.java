@@ -1,3 +1,4 @@
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.ToDoubleFunction;
@@ -85,11 +86,12 @@ public class Network {
     public void backPropogate(List<Double> target) {
         List<Double> delta = new ArrayList<Double>();
         double newWeight = 0;
-        Layer currentLayer = layers.get(hiddenLayers+1);
+        Layer currentLayer = layers.get(hiddenLayers + 1);
         Layer previousLayer = layers.get(hiddenLayers);
         List<Node> outputs = currentLayer.nodes;
 
-        for(Node outputNode : outputs) {
+
+        for (Node outputNode : outputs) {
             // Sketch since assumes output layer and target lists are ordered the same
             // Solved by having the output Node store the target
             // Fine to assume
@@ -108,6 +110,38 @@ public class Network {
                 Double currentWeight = outputNode.weights.get(i);
                 Double weightChange = (delta.get(0)) * currentNode.output;
                 outputNode.weights.set(i, currentWeight - learningRate * weightChange);
+            }
+        }
+
+        //Starting iteration at hidden layer
+        for (int l = hiddenLayers; l>0; l--) {
+            currentLayer = previousLayer;
+            previousLayer = layers.get(layers.indexOf(currentLayer)-1);
+            outputs = currentLayer.nodes;
+
+            //Only executing on hidden layers
+            if(currentLayer.layerType != Type.HIDDEN && currentLayer.layerType != Type.RBFHIDDEN)
+                continue;
+            //Iterating through all nodes in currentLayer
+            for (Node hiddenNode : outputs) {
+                int index = outputs.indexOf(hiddenNode);
+                double deltaWeightSum = 0;
+                //Taking every weight attached to previous layer and summing (previous delta)*(All attached weights)
+                for(double weight : hiddenNode.weights ){
+                    int i = previousLayer.nodes.indexOf(hiddenNode);
+                    int j = layers.indexOf(currentLayer);
+                    deltaWeightSum = delta.get(j)*hiddenNode.weights.get(i);
+                }
+
+                delta.add(deltaWeightSum);
+
+                //Updates all weights **NEED TO CHANGE HARDCODED DELTA INDEX
+                for (Node currentNode : previousLayer.nodes) {
+                    int i = previousLayer.nodes.indexOf(currentNode);
+                    Double currentWeight = hiddenNode.weights.get(i);
+                    Double weightChange = (delta.get(0)) * currentNode.output;
+                    hiddenNode.weights.set(i, currentWeight - learningRate * weightChange);
+                }
             }
         }
     }
