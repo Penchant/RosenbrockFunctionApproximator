@@ -6,5 +6,4 @@ notifications:
 before_install:
     - export JAVA_HOME=/usr/lib/jvm/java-8-oracle
 script:
-    - echo $JAVA_HOME
     - ant build.modules
