@@ -60,10 +60,6 @@ public class Main extends Application {
 
         //Create network with examples from data generation
         network = new Network(hiddenLayers, nodesPerHiddenLater, inputCount, isRadialBasis, dataGeneration(dataGenStart, dataGenEnd, dataGenIncrement, inputCount, Network::rosenbrock));
-        boolean truee = true;
-        while(truee){
-
-        }
 
         // "Test" the progress bar
         if(useGUI) {
