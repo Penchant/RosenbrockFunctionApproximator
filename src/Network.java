@@ -90,9 +90,6 @@ public class Network {
         List<Node> outputs = currentLayer.nodes;
 
         for(Node outputNode : outputs) {
-            // Sketch since assumes output layer and target lists are ordered the same
-            // Solved by having the output Node store the target
-            // Fine to assume
             int index = outputs.indexOf(outputNode);
             delta.add((outputNode.output - target.get(index)) * outputNode.output * (1 - outputNode.output));
 
@@ -100,10 +97,6 @@ public class Network {
              * Loops through all Weights attached
              */
             for (Node currentNode : previousLayer.nodes) {
-                // Sketch since assumed layer stores the nodes in the same order that the output node does
-                // Solved by having a dictionary of nodes and weights, rather than a list
-                // Assumption is fine because there is no initial intrinsic link between weights and nodes
-                // It justs ends up being additional initial randomness
                 int i = previousLayer.nodes.indexOf(currentNode);
                 Double currentWeight = outputNode.weights.get(i);
                 Double weightChange = (delta.get(0)) * currentNode.output;
