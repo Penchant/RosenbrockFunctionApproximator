@@ -54,7 +54,7 @@
   
   <!-- JDK definitions -->
   
-  <property name="jdk.bin.1.8" value="${java.home}/bin"/>
+  <property name="jdk.bin.1.8" value="${jdk.home.1.8}/bin"/>
   <path id="jdk.classpath.1.8">
     <fileset dir="${jdk.home.1.8}">
       <include name="jre/lib/charsets.jar"/>

@@ -9,4 +9,8 @@ before_install:
    # - export '%JAVA_HOME%'=$(JAVA_HOME)
 script:
     - echo $JAVA_HOME
+#    - cp -r src out
+#    - cp -r res out
+#    - javac out/Main.java
+#    - java out/Main -h
     - ant build.modules
