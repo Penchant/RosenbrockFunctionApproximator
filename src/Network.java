@@ -121,6 +121,7 @@ public class Network {
             for (Node hiddenNode : outputs) {
                 int index = outputs.indexOf(hiddenNode);
                 double deltaWeightSum = 0;
+                double newDelta = 0;
                 //Taking every weight attached to previous layer and summing (previous delta)*(All attached weights)
                 for(double weight : hiddenNode.weights ){
                     int i = previousLayer.nodes.indexOf(hiddenNode);
@@ -128,14 +129,15 @@ public class Network {
                     deltaWeightSum += delta.get(j)*hiddenNode.weights.get(i);
                 }
 
-                delta.add(deltaWeightSum);
+                newDelta = deltaWeightSum*(1-hiddenNode.output)*hiddenNode.output;
+                delta.add(newDelta);
 
                 //Updates all weights **NEED TO CHANGE HARDCODED DELTA INDEX
                 for (Node currentNode : previousLayer.nodes) {
                     int i = previousLayer.nodes.indexOf(currentNode);
-                    Double currentWeight = hiddenNode.weights.get(i);
+                    double currentNewWeight = hiddenNode.newWeights.get(i);
                     Double weightChange = (delta.get(0)) * currentNode.output;
-                    hiddenNode.weights.set(i, currentWeight - learningRate * weightChange);
+                    hiddenNode.newWeights.set(i, currentNewWeight - learningRate * weightChange);
                 }
             }
         }
