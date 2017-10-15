@@ -8,9 +8,9 @@ public class Node {
 
     public static double sigma = 0;
 
-    public List<Double> inputs;
-    public List<Double> weights;
-    public List<Double> newWeights;
+    public List<Double> inputs = new ArrayList<>();
+    public List<Double> weights = new ArrayList<>();
+    public List<Double> newWeights = new ArrayList<>();
 
     public double output;
     public double mu = 0;
@@ -22,6 +22,7 @@ public class Node {
 
         weights = new ArrayList<>();
         inputs = new ArrayList<>();
+
         for (int i = 0; i < inputCount ; i++) {
             weights.add(Math.random() * 10);
             newWeights = weights;

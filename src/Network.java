@@ -76,23 +76,22 @@ public class Network implements Runnable {
     }
 
     /**
-     * TODO: write a description of forward propogation
+     * TODO: write a description of forward propagation
      * Used for batch updates, where all examples will have their outputs calculated
      * @return A [List] containing the output for each example in the examples list.
      */
-    public Double forwardPropogate(Example example) throws IllegalStateException {
+    public Double forwardPropagate(Example example) throws IllegalStateException {
             Layer input = layers.get (0);
-            // for each node in the input layer
-            for (int j = 0; j < input.nodes.size(); j++) {
+
+            // for each node in the input layer, set the input to the node
+            for (int j = 0; j < input.nodes.size(); ++j) {
                 Node currentNode = input.nodes.get(j);
-                // for each dimension in the example we will have one input
-                for (int k = 0; k < example.inputs.size(); k++) {
-                    // if the node doesn't have enough inputs, add one.
-                    if (currentNode.inputs.size() <= k) {
-                        currentNode.inputs.add(example.inputs.get(k));
-                    } else {
-                        currentNode.inputs.set(k, example.inputs.get(k));
-                    }
+
+                // if the node doesn't have enough inputs, add one.
+                if (currentNode.inputs.size () < 1) {
+                    currentNode.inputs.add(example.inputs.get(j));
+                } else {
+                    currentNode.inputs.set(0, example.inputs.get(j));
                 }
             }
 
@@ -109,11 +108,12 @@ public class Network implements Runnable {
                     for (int k = 0; k < nextLayer.nodes.size(); k++) {
                         Node currentNode = nextLayer.nodes.get(k);
                         // set each node's inputs to the outputs
-                        for (int l = 0; l < outputs.size (); l++) {
-                            if (currentNode.inputs.size () <= l) {
-                                currentNode.inputs.add (outputs.get (l));
+
+                        for (int a = 0; a < outputs.size (); a++) {
+                            if (currentNode.inputs.size () <= a) {
+                                currentNode.inputs.add (outputs.get (a));
                             } else {
-                                currentNode.inputs.set(l, outputs.get (l));
+                                currentNode.inputs.set(a, outputs.get (a));
                             }
                         }
                     }
@@ -130,7 +130,7 @@ public class Network implements Runnable {
      * Use forwardProp to get output layer // TODO: ??????
      * @param target
      */
-    public void backPropogate(List<Double> target) {
+    public void backPropagate(List<Double> target) {
         List<Double> delta = new ArrayList<Double>();
         double newWeight = 0; // TODO: Unused
 
