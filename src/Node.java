@@ -9,6 +9,7 @@ public class Node {
 
     public List<Double> inputs;
     public List<Double> weights;
+    public List<Double> newWeights;
 
     public double output;
     public double mu = 0;
