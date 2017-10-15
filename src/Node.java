@@ -75,4 +75,9 @@ public class Node {
      */
     private Function<Double, Double> logisticActivation = value -> 1d / (1 + Math.pow(Math.E, -value));
 
+    @Override
+    public String toString() {
+        return "Node Output: " + output;
+    }
+
 }
