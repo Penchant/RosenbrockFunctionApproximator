@@ -31,6 +31,7 @@ public class Network implements Runnable {
         Layer.network = this;
         layers.add(new Layer(dimension, Type.INPUT));
         inputLayer = layers.get(0);
+
         for (int i = 0; i < hiddenLayers; i++) {
             layers.add(new Layer(nodesPerHiddenLayer, isRadialBasis ? Type.RBFHIDDEN : Type.HIDDEN));
         }
@@ -52,8 +53,6 @@ public class Network implements Runnable {
                 }
             }
 
-            int check = (int)(Math.random()*100);
-
             // For each example we set the input layer's node's inputs to the example value,
             // then calculate the output for that example.
             for (int i = 0; i < examples.size(); i++) {
@@ -61,10 +60,8 @@ public class Network implements Runnable {
                     Example example = examples.get(i);
                     Double networkOutput = forwardPropagate(example);
                     output.add(networkOutput);
-                    if(i == check || true) {
-                        //System.out.println("Current error is " + Math.abs(example.outputs.get(0) - networkOutput));
-                        System.out.println("Network predicted " + networkOutput + " for inputs of " + example.inputs.toString() + " and a correct output of " + example.outputs.get(0));
-                    }
+
+                    System.out.println("Network predicted " + networkOutput + " for inputs of " + example.inputs.toString() + " and a correct output of " + example.outputs.get(0));
 
                     if (Double.isNaN(networkOutput)) {
                         System.err.println("NaN");
@@ -77,12 +74,8 @@ public class Network implements Runnable {
                     System.exit(1);
                 }
             }
-            
-            for (Layer lay : layers) {
-                for (Node node : lay.nodes) {
-                    node.updateWeights();
-                }
-            }
+
+            layers.forEach(layer -> layer.nodes.forEach(node -> node.updateWeights()));
 
             List<Double> outputs = examples
                     .stream()
@@ -90,7 +83,6 @@ public class Network implements Runnable {
                     .collect(Collectors.toList());
 
             System.out.println("Average error is " + calculateAverageError(output, outputs));
-
         }
     }
 
@@ -104,11 +96,10 @@ public class Network implements Runnable {
         Layer input = layers.get(0);
 
         // For each node in the input layer, set the input to the node
-        for (int j = 0; j < input.nodes.size(); j++) {
-            Node currentNode = input.nodes.get(j);
-            currentNode.inputs.clear();
-            currentNode.inputs.addAll(example.inputs);
-        }
+        input.nodes.parallelStream().forEach(node -> {
+            node.inputs.clear();
+            node.inputs.addAll(example.inputs);
+        });
 
         // Calculate the output for each layer and pass it into the next layer
         for (int j = 0; j < layers.size(); j++) {
@@ -119,7 +110,7 @@ public class Network implements Runnable {
             if (j != layers.size() - 1) {
                 Layer nextLayer = layers.get(j + 1);
                 // Grab each node in the layer
-                nextLayer.nodes.stream().forEach(node -> {
+                nextLayer.nodes.parallelStream().forEach(node -> {
                     // Set each node's inputs to the outputs
                     node.inputs.clear();
                     node.inputs.addAll(outputs);
@@ -139,43 +130,48 @@ public class Network implements Runnable {
         Layer previousLayer = layers.get(hiddenLayers);
         List<Node> outputNodes = currentLayer.nodes;
 
-        //Updating weights on output layer
+        // Updating weights on output layer
         for (int i = 0; i < outputNodes.size(); i++) {
             Node outputNode = outputNodes.get(i);
             outputNode.delta = -1 * (target.get(i) - outputNode.output) * outputNode.output * (1 - outputNode.output);
 
             for (int j = 0; j < outputNode.newWeights.size(); j++) {
                 double weightChange = outputNode.delta * previousLayer.nodes.get(j).output;
-                if(Double.isNaN(weightChange) || outputNode.delta == 0){
-                    System.out.println("Oh no!");
+
+                if (Double.isNaN(weightChange)){
+                    System.err.println("weightChange is not a number");
                 }
+                if (outputNode.delta == 0) {
+                    System.err.println("delta is zero");
+                }
+
                 outputNode.newWeights.set(j,outputNode.newWeights.get(j) - learningRate * weightChange);
             }
         }
 
-        //Iterating over all hidden layers to calculate weight change
+        // Iterating over all hidden layers to calculate weight change
         for(int x = hiddenLayers; x > 0; x--) {
             outputNodes = currentLayer.nodes;
             currentLayer = layers.get(x);
             previousLayer = layers.get(x - 1);
 
-            //Updates the weights of each node in the layer
+            // Updates the weights of each node in the layer
             for (int i = 0; i < currentLayer.nodes.size(); i++) {
                 final int index = i;
                 Node currentNode = currentLayer.nodes.get(i);
 
-                double weightedDeltaSum = outputNodes.stream().mapToDouble(node -> node.delta * node.weights.get(index)).sum();
+                double weightedDeltaSum = outputNodes.parallelStream().mapToDouble(node -> node.delta * node.weights.get(index)).sum();
                 currentNode.delta = weightedDeltaSum * currentNode.output * (1 - currentNode.output);
 
-                //Updating each weight in the node
+                // Updating each weight in the node
                 for (int j = 0; j < currentNode.newWeights.size(); j++) {
-
                     double weightChange = currentNode.delta * previousLayer.nodes.get(j).output;
-                    if(Double.isNaN(weightChange)){
-                        System.out.println("Oh no!");
-                    }
-                    currentNode.newWeights.set(j,currentNode.newWeights.get(j) - learningRate * weightChange);
 
+                    if (Double.isNaN(weightChange)){
+                        System.err.println("weightChange is not a number");
+                    }
+
+                    currentNode.newWeights.set(j, currentNode.newWeights.get(j) - learningRate * weightChange);
                 }
             }
         }
@@ -219,14 +215,13 @@ public class Network implements Runnable {
      */
     public double calculateTotalError(List<Double> outputs, List<Double> inputs) {
         return IntStream.range(0, outputs.size())
-                .mapToDouble(i -> 0.5d*(Math.pow((inputs.get(i)-outputs.get(i)), 2)))
+                .mapToDouble(i -> 0.5d * Math.pow(inputs.get(i) - outputs.get(i), 2))
                 .sum();
     }
 
     public double calculateAverageError(List<Double> outputs, List<Double> inputs) {
         return IntStream.range(0, outputs.size())
-                .mapToDouble(i -> Math.abs(inputs.get(i)-outputs.get(i)))
-                .sum()
-                /((double)outputs.size());
+                .mapToDouble(i -> Math.abs(inputs.get(i) - outputs.get(i)))
+                .sum() / (double) outputs.size();
     }
 }
