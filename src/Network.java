@@ -50,10 +50,10 @@ public class Network implements Runnable {
             for (int i = 0; i < examples.size (); ++i) {
                 try {
                     Example example = examples.get(i);
-                    Double networkOutput = forwardPropogate(example);
+                    Double networkOutput = forwardPropagate(example);
                     output.add(networkOutput);
                     System.out.println("Network predicted " + networkOutput + " for inputs of " + example.inputs.toString() + " and a correct output of " + example.outputs.get(0));
-                    backPropogate(examples.get(i).outputs);
+                    forwardPropagate(examples.get(i));
                 } catch (IllegalStateException e){
                     e.printStackTrace();
                     System.exit(1);
