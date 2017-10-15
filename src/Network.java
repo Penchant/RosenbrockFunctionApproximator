@@ -1,4 +1,5 @@
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.ToDoubleFunction;
@@ -48,14 +49,14 @@ public class Network implements Runnable {
             // then calculate the output for that example.
             for (int i = 0; i < examples.size (); ++i) {
                 try {
-                    Example example =examples.get(i);
+                    Example example = examples.get(i);
                     Double networkOutput = forwardPropogate(example);
                     output.add(networkOutput);
-                    System.out.println("Network predicted " + networkOutput + "for inputs of " + example.inputs.toString() + " and a correct output of " + example.outputs.get(0));
+                    System.out.println("Network predicted " + networkOutput + " for inputs of " + example.inputs.toString() + " and a correct output of " + example.outputs.get(0));
                     backPropogate(examples.get(i).outputs);
-                }
-                catch (Exception e){
-                    System.out.println("Well... that is bad");
+                } catch (IllegalStateException e){
+                    e.printStackTrace();
+                    System.exit(1);
                 }
             }
 
@@ -65,7 +66,10 @@ public class Network implements Runnable {
                 }
             }
 
-            List<Double> outputs = examples.stream().map(example -> example.outputs.get(0)).collect(Collectors.toList());
+            List<Double> outputs = examples
+                    .stream()
+                    .map(example -> example.outputs.get(0))
+                    .collect(Collectors.toList());
 
             System.out.println("Total error is " + calculateTotalError(output, outputs));
         }
@@ -76,36 +80,37 @@ public class Network implements Runnable {
      * Used for batch updates, where all examples will have their outputs calculated
      * @return A [List] containing the output for each example in the examples list.
      */
-    public Double forwardPropogate(Example example) throws Exception {
+    public Double forwardPropogate(Example example) throws IllegalStateException {
             Layer input = layers.get (0);
             // for each node in the input layer
-            for (int j = 0; j < input.nodes.size(); ++j) {
+            for (int j = 0; j < input.nodes.size(); j++) {
                 Node currentNode = input.nodes.get(j);
                 // for each dimension in the example we will have one input
-                for (int k = 0; k < example.inputs.size (); ++k) {
+                for (int k = 0; k < example.inputs.size(); k++) {
                     // if the node doesn't have enough inputs, add one.
-                    if (currentNode.inputs.size () < k) {
-                        currentNode.inputs.add(example.inputs.get (k));
+                    if (currentNode.inputs.size() <= k) {
+                        currentNode.inputs.add(example.inputs.get(k));
                     } else {
-                        currentNode.inputs.set (k, example.inputs.get (k));
+                        currentNode.inputs.set(k, example.inputs.get(k));
                     }
                 }
             }
 
             // Calculate the output for each layer and pass it into the next layer
-            for (int j = 0; j < layers.size (); ++j) {
+            for (int j = 0; j < layers.size (); j++) {
                 Layer currentLayer = layers.get (j);
                 List<Double> outputs = currentLayer.calculateNodeOutputs ();
                 // If we are not at the output layer, we are going to set the 
                 // next layers inputs to the current layers outputs.
+//                System.out.println(j);
                 if (j != layers.size () - 1) {
                     Layer nextLayer = layers.get (j + 1);
                     // Grab each node in the layer
-                    for (int k = 0; k < nextLayer.nodes.size(); ++k) {
+                    for (int k = 0; k < nextLayer.nodes.size(); k++) {
                         Node currentNode = nextLayer.nodes.get(k);
                         // set each node's inputs to the outputs
-                        for (int l = 0; l < outputs.size (); ++l) {
-                            if (currentNode.inputs.size () < l) {
+                        for (int l = 0; l < outputs.size (); l++) {
+                            if (currentNode.inputs.size () <= l) {
                                 currentNode.inputs.add (outputs.get (l));
                             } else {
                                 currentNode.inputs.set(l, outputs.get (l));
@@ -116,17 +121,18 @@ public class Network implements Runnable {
                     // Assume output has only one node. 
                     return outputs.get(0);
                 }
+                System.out.println();
             }
-            throw new Exception("Should have hit the output layer");
+            throw new IllegalStateException("Should have hit the output layer");
     }
 
     /**
-     * Use forwardProp to get output layer
+     * Use forwardProp to get output layer // TODO: ??????
      * @param target
      */
     public void backPropogate(List<Double> target) {
         List<Double> delta = new ArrayList<Double>();
-        double newWeight = 0;
+        double newWeight = 0; // TODO: Unused
 
         Layer currentLayer = layers.get(hiddenLayers + 1);
 
@@ -143,41 +149,41 @@ public class Network implements Runnable {
             for (Node currentNode : previousLayer.nodes) {
                 int i = previousLayer.nodes.indexOf(currentNode);
                 Double currentWeight = outputNode.weights.get(i);
-                Double weightChange = (delta.get(0)) * currentNode.output;
+                Double weightChange = delta.get(0) * currentNode.output;
                 outputNode.weights.set(i, currentWeight - learningRate * weightChange);
             }
         }
 
 
-        //Starting iteration at hidden layer
+        // Starting iteration at hidden layer
         for (int l = hiddenLayers; l>0; l--) {
             currentLayer = previousLayer;
             previousLayer = layers.get(layers.indexOf(currentLayer)-1);
             outputs = currentLayer.nodes;
 
-            //Only executing on hidden layers
+            // Only executing on hidden layers
             if(currentLayer.layerType != Type.HIDDEN && currentLayer.layerType != Type.RBFHIDDEN)
                 continue;
-            //Iterating through all nodes in currentLayer
+            // Iterating through all nodes in currentLayer
             for (Node hiddenNode : outputs) {
-                int index = outputs.indexOf(hiddenNode);
+                int index = outputs.indexOf(hiddenNode); // TODO: Unused
                 double deltaWeightSum = 0;
-                double newDelta = 0;
-                //Taking every weight attached to previous layer and summing (previous delta)*(All attached weights)
-                for(double weight : hiddenNode.weights ){
+                double newDelta;
+                // Taking every weight attached to previous layer and summing (previous delta) * (All attached weights)
+                for(double weight : hiddenNode.weights) { // TODO: Unused
                     int i = previousLayer.nodes.indexOf(hiddenNode);
                     int j = layers.indexOf(currentLayer);
-                    deltaWeightSum += delta.get(j)*hiddenNode.weights.get(i);
+                    deltaWeightSum += delta.get(j) * hiddenNode.weights.get(i); // TODO: ArrayIndexOutOfBoundsException (on both lists)
                 }
 
-                newDelta = deltaWeightSum*(1-hiddenNode.output)*hiddenNode.output;
+                newDelta = deltaWeightSum * (1 - hiddenNode.output) * hiddenNode.output;
                 delta.add(newDelta);
 
-                //Updates all weights **NEED TO CHANGE HARDCODED DELTA INDEX
+                // Updates all weights TODO: CHANGE HARDCODED DELTA INDEX
                 for (Node currentNode : previousLayer.nodes) {
                     int i = previousLayer.nodes.indexOf(currentNode);
                     double currentNewWeight = hiddenNode.newWeights.get(i);
-                    Double weightChange = (delta.get(0)) * currentNode.output;
+                    Double weightChange = delta.get(0) * currentNode.output;
                     hiddenNode.newWeights.set(i, currentNewWeight - learningRate * weightChange);
                 }
             }
@@ -186,7 +192,6 @@ public class Network implements Runnable {
     }
 
     public List<Double> calculateError(){return null;}
-    private void kMeansCluster(int k){}
     private double calculateSigma(){return 0d;}
 
     /**
