@@ -9,6 +9,7 @@ public class Network implements Runnable {
     private List<Example> examples;
     public List<Layer> layers = new ArrayList<>();
 
+    private Layer inputLayer;
     private int hiddenLayers;
     private int dimension;
     private int nodesPerHiddenLayer;
@@ -30,6 +31,7 @@ public class Network implements Runnable {
 
         Layer.network = this;
         layers.add(new Layer(dimension, Type.INPUT));
+        inputLayer = layers.get(0);
         for (int i = 0; i < hiddenLayers; i++) {
             layers.add(new Layer(nodesPerHiddenLayer, isRadialBasis ? Type.RBFHIDDEN : Type.HIDDEN));
         }
@@ -48,10 +50,11 @@ public class Network implements Runnable {
             // then calculate the output for that example.
             for (int i = 0; i < examples.size (); ++i) {
                 try {
-                    Example example =examples.get(i);
+                    Example example = examples.get(i);
                     Double networkOutput = forwardPropagate(example);
                     output.add(networkOutput);
-                    System.out.println("Network predicted " + networkOutput + "for inputs of " + example.inputs.toString() + " and a correct output of " + example.outputs.get(0));
+                    //if(i % 100 == 0)
+                        System.out.println("Network predicted " + networkOutput + "for inputs of " + example.inputs.toString() + " and a correct output of " + example.outputs.get(0));
                     backPropagate(examples.get(i).outputs);
                 }
                 catch (IllegalThreadStateException e){
@@ -143,17 +146,17 @@ public class Network implements Runnable {
              */
             for (Node currentNode : previousLayer.nodes) {
                 int i = previousLayer.nodes.indexOf(currentNode);
-                Double currentWeight = outputNode.weights.get(i);
+                Double currentWeight = outputNode.newWeights.get(i);
                 Double weightChange = (delta.get(0)) * currentNode.output;
-                outputNode.weights.set(i, currentWeight - learningRate * weightChange);
+                outputNode.newWeights.set(i, currentWeight - learningRate * weightChange);
             }
         }
 
 
         //Starting iteration at hidden layer
         for (int l = hiddenLayers; l>0; l--) {
-            currentLayer = previousLayer;
-            previousLayer = layers.get(layers.indexOf(currentLayer)-1);
+            previousLayer = currentLayer;
+            currentLayer = layers.get(currentLayer.id - 1);
             outputs = currentLayer.nodes;
 
             //Only executing on hidden layers
@@ -167,8 +170,8 @@ public class Network implements Runnable {
                 //Taking every weight attached to previous layer and summing (previous delta)*(All attached weights)
                 for(double weight : hiddenNode.weights ){
                     int i = previousLayer.nodes.indexOf(hiddenNode);
-                    int j = layers.indexOf(currentLayer);
-                    deltaWeightSum += delta.get(j)*hiddenNode.weights.get(i);
+                    int j = layers.indexOf(currentLayer) - 1;
+                    deltaWeightSum += delta.get(j)*weight;
                 }
 
                 newDelta = deltaWeightSum*(1-hiddenNode.output)*hiddenNode.output;
@@ -197,12 +200,13 @@ public class Network implements Runnable {
      * @return The result of applying to Rosenbrock function to the given input
      */
     public static double rosenbrock(double ... values) {
-        return IntStream.range(0, values.length - 2)
+        double output = IntStream.range(0, values.length - 1)
                 .boxed()
                 .parallel()
                 .map(i -> new Double[] {values[i], values[i + 1]})
                 .mapToDouble(rosenbrock2D)
                 .sum();
+        return output;
     }
 
     /**
