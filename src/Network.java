@@ -39,16 +39,15 @@ public class Network implements Runnable {
         } else {
             Layer rbfHidden = new Layer (examples.size(), Type.RBFHIDDEN);
 
-            for (int i = 0; i < examples.size(); i++) {
-                Example ex = examples.get(i);
-                for (int j = 0; j < rbfHidden.nodes.size(); j++) {
-                    Node current = rbfHidden.nodes.get(j);
-                    for (int k = 0; k < ex.inputs.size(); k++) {
-                        current.weights.set(k, ex.get(k)); // TODO: No idea if this is supposed to be inputs or outputs, but its failing the build either way.
+            examples.forEach(example ->
+                rbfHidden.nodes.forEach(current -> {
+                    for (int k = 0; k < example.inputs.size(); k++) {
+                        current.weights.set(k, example.inputs.get(k));
                     }
-                    current.mu = ex.outputs.get(0);
-                }
-            }
+                    current.mu = example.outputs.get(0);
+                })
+            );
+
             layers.add(rbfHidden);
         }
 
