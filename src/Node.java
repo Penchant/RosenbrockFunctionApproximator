@@ -21,7 +21,7 @@ public class Node {
         this.nodeType = nodeType;
 
         for (int i = 0; i < inputCount ; i++) {
-            weights.add(Math.random() * 10);
+            weights.add(Math.random());
             newWeights = weights;
         }
     }
