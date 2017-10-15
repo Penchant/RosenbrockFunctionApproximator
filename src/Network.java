@@ -170,8 +170,8 @@ public class Network implements Runnable {
                 double newDelta;
                 // Taking every weight attached to previous layer and summing (previous delta) * (All attached weights)
                 for(double weight : hiddenNode.weights) {
-                    int j = layers.indexOf(currentLayer);
-                    deltaWeightSum += delta.get(j - 1) * weight;
+                    int j =  hiddenLayers - layers.indexOf(currentLayer);
+                    deltaWeightSum += delta.get(j) * weight;
                 }
 
                 newDelta = deltaWeightSum * (1 - hiddenNode.output) * hiddenNode.output;
@@ -199,7 +199,7 @@ public class Network implements Runnable {
      * @return The result of applying to Rosenbrock function to the given input
      */
     public static double rosenbrock(double ... values) {
-        return IntStream.range(0, values.length - 2)
+        return IntStream.range(0, values.length - 1)
                 .boxed()
                 .parallel()
                 .map(i -> new Double[] {values[i], values[i + 1]})
