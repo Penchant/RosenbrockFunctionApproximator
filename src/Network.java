@@ -184,6 +184,7 @@ public class Network implements Runnable {
 
                     if (Double.isNaN(weightChange)){
                         System.err.println("weightChange is not a number");
+
                     }
 
                     currentNode.newWeights.set(j, currentNode.newWeights.get(j) - learningRate * weightChange);
@@ -194,7 +195,25 @@ public class Network implements Runnable {
 
     public List<Double> calculateError() {return null;}
 
-    private double calculateSigma() {return 0d;}
+    private double calculateSigma() {
+        double distance, maxDistance = 0;
+        double x1, x2 = 0;
+        double sum = 0;
+
+        List<Double> inputs = new Example().inputs;
+
+        for (int i = 0; i < examples.size() ; i++) {
+            for (int j = 0; j < inputs.size(); j++) {
+                x1 = inputs.get(j);
+                x2 = examples.get(i).inputs.get(j);
+                sum += (x1-x2) * (x1 - x2);
+            }
+            distance = Math.sqrt(sum);
+            if (distance > maxDistance)
+                maxDistance = distance;
+
+        }
+        return maxDistance;}
 
     /**
      * Calculates the Rosenbrock function from the given input
