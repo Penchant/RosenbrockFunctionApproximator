@@ -4,18 +4,19 @@ import java.util.stream.IntStream;
 
 public class Layer {
 
+    public static int count = 0;
+    public static Network network;
+
     public List<Node> nodes;
     public Type layerType;
     public int id;
-    static public int count = 0;
-    static public Network network;
 
     public Layer(int nodeCount, Type layerType) {
         this.layerType = layerType;
         this.id = count;
         count++;
 
-        int inputCount = layerType == Type.INPUT ? nodeCount : network.layers.get(id -1).nodes.size();
+        int inputCount = layerType == Type.INPUT ? nodeCount : network.layers.get(id - 1).nodes.size();
 
         nodes = IntStream.range(0, nodeCount)
                 .boxed()

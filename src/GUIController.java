@@ -5,10 +5,22 @@ import javafx.scene.control.CheckBox;
 import javafx.scene.control.ProgressBar;
 import javafx.scene.control.TextField;
 import javafx.scene.input.MouseEvent;
+
 import java.net.URL;
 import java.util.ResourceBundle;
 
 public class GUIController implements Initializable {
+
+    @FXML public ProgressBar progressBar;
+    @FXML private Button selectFileButton;
+    @FXML private Button startButton;
+    @FXML private TextField dataGenStartTextField;
+    @FXML private TextField dataGenEndTextField;
+    @FXML private TextField dataGenIncrementTextField;
+    @FXML private TextField hiddenLayersTextField;
+    @FXML private TextField inputCountTextField;
+    @FXML private TextField nodesPerHiddenLayerTextField;
+    @FXML private CheckBox isRadialBasisCheckbox;
 
     @Override
     public void initialize(URL url, ResourceBundle rb) {
@@ -19,16 +31,6 @@ public class GUIController implements Initializable {
         setNodesPerHiddenLayerTextField(Main.nodesPerHiddenLayer);
         setInputCountTextField(Main.dimension);
     }
-
-    @FXML private Button selectFileButton;
-    @FXML private Button startButton;
-    @FXML private TextField dataGenStartTextField;
-    @FXML private TextField dataGenEndTextField;
-    @FXML private TextField dataGenIncrementTextField;
-    @FXML private TextField hiddenLayersTextField;
-    @FXML private TextField inputCountTextField;
-    @FXML private TextField nodesPerHiddenLayerTextField;
-    @FXML private CheckBox isRadialBasisCheckbox;
 
     public TextField setDataGenStartTextField(double value) {
         dataGenStartTextField.setText("" + value);
@@ -59,8 +61,6 @@ public class GUIController implements Initializable {
         nodesPerHiddenLayerTextField.setText("" + value);
         return nodesPerHiddenLayerTextField;
     }
-
-    @FXML public ProgressBar progressBar;
 
     @FXML
     private void selectFile(MouseEvent event) {

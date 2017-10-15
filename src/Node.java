@@ -20,8 +20,9 @@ public class Node {
     public Node(Type nodeType, int inputCount) {
         this.nodeType = nodeType;
 
-        for (int i = 0; i < inputCount ; i++) {
-            weights.add(Math.random());
+        double weightFactor = nodeType == Type.OUTPUT ? 100 : 1;
+        for (int i = 0; i < inputCount; i++) {
+            weights.add(Math.random() * weightFactor);
             newWeights = weights;
         }
     }
@@ -29,13 +30,13 @@ public class Node {
     public double calculateOutput() {
         final Function<Double, Double> activationFunction;
 
-        switch(nodeType) {
+        switch (nodeType) {
             case HIDDEN:    activationFunction = logisticActivation; break;
             case RBFHIDDEN: activationFunction = gaussianBasisFunction; break;
             case INPUT:
             case OUTPUT:
             case RBFINPUT:
-            default:        activationFunction = linearActivation;   break;
+            default:        activationFunction = linearActivation; break;
         }
 
         return output = activationFunction.apply(
@@ -57,18 +58,15 @@ public class Node {
      * Takes in a value and a weight and multiplies them
      */
     private ToDoubleFunction<Double[]> calculateOutput = values -> values[0] * values[1];
-
     /**
      * Gaussian Basis Function (RBF Activation function)
      */
-    private Function<Double, Double> gaussianBasisFunction = value -> Math.pow(Math.E, - Math.pow(value - mu, 2) / (2 * sigma * sigma));
-
+    private Function<Double, Double> gaussianBasisFunction = value -> Math.pow(Math.E, -Math.pow(value - mu, 2) / (2 * sigma * sigma));
     /**
      * Linear Activation Function
      * Returns the input
      */
     private Function<Double, Double> linearActivation = Function.identity();
-
     /**
      * Logistic Activation Function
      * Returns the input mapped to a sigmoidal curve
