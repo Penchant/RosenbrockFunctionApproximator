@@ -70,11 +70,7 @@ public class Network implements Runnable {
                 }
             }
 
-            for (Layer lay : layers) {
-                for (Node node : lay.nodes) {
-                    node.weights = node.newWeights;
-                }
-            }
+            layers.forEach(layer -> layer.nodes.forEach(node -> node.weights = node.newWeights));
 
             List<Double> outputs = examples
                     .stream()
