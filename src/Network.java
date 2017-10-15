@@ -49,12 +49,12 @@ public class Network implements Runnable {
             for (int i = 0; i < examples.size (); ++i) {
                 try {
                     Example example =examples.get(i);
-                    Double networkOutput = forwardPropogate(example);
+                    Double networkOutput = forwardPropagate(example);
                     output.add(networkOutput);
                     System.out.println("Network predicted " + networkOutput + "for inputs of " + example.inputs.toString() + " and a correct output of " + example.outputs.get(0));
-                    backPropogate(examples.get(i).outputs);
+                    backPropagate(examples.get(i).outputs);
                 }
-                catch (Exception e){
+                catch (IllegalThreadStateException e){
                     System.out.println("Well... that is bad");
                 }
             }
@@ -65,30 +65,31 @@ public class Network implements Runnable {
                 }
             }
 
-            List<Double> outputs = examples.stream().map(example -> example.outputs.get(0)).collect(Collectors.toList());
+            List<Double> outputs = examples.stream()
+                                            .map(example -> example.outputs.get(0))
+                                            .collect(Collectors.toList());
 
             System.out.println("Total error is " + calculateTotalError(output, outputs));
         }
     }
 
     /**
-     * TODO: write a description of forward propogation
+     * TODO: write a description of forward propagation
      * Used for batch updates, where all examples will have their outputs calculated
      * @return A [List] containing the output for each example in the examples list.
      */
-    public Double forwardPropogate(Example example) throws Exception {
+    public Double forwardPropagate(Example example) throws IllegalThreadStateException {
             Layer input = layers.get (0);
-            // for each node in the input layer
+
+            // for each node in the input layer, set the input to the node
             for (int j = 0; j < input.nodes.size(); ++j) {
                 Node currentNode = input.nodes.get(j);
-                // for each dimension in the example we will have one input
-                for (int k = 0; k < example.inputs.size (); ++k) {
-                    // if the node doesn't have enough inputs, add one.
-                    if (currentNode.inputs.size () < k) {
-                        currentNode.inputs.add(example.inputs.get (k));
-                    } else {
-                        currentNode.inputs.set (k, example.inputs.get (k));
-                    }
+
+                // if the node doesn't have enough inputs, add one.
+                if (currentNode.inputs.size () < 1) {
+                    currentNode.inputs.add(example.inputs.get(j));
+                } else {
+                    currentNode.inputs.set(0, example.inputs.get(j));
                 }
             }
 
@@ -104,11 +105,11 @@ public class Network implements Runnable {
                     for (int k = 0; k < nextLayer.nodes.size(); ++k) {
                         Node currentNode = nextLayer.nodes.get(k);
                         // set each node's inputs to the outputs
-                        for (int l = 0; l < outputs.size (); ++l) {
-                            if (currentNode.inputs.size () < l) {
-                                currentNode.inputs.add (outputs.get (l));
+                        for (int a = 0; a < outputs.size (); ++a) {
+                            if (currentNode.inputs.size () < a + 1) {
+                                currentNode.inputs.add (outputs.get (a));
                             } else {
-                                currentNode.inputs.set(l, outputs.get (l));
+                                currentNode.inputs.set(a, outputs.get (a));
                             }
                         }
                     }
@@ -117,14 +118,14 @@ public class Network implements Runnable {
                     return outputs.get(0);
                 }
             }
-            throw new Exception("Should have hit the output layer");
+            throw new IllegalThreadStateException("Should have hit the output layer");
     }
 
     /**
      * Use forwardProp to get output layer
      * @param target
      */
-    public void backPropogate(List<Double> target) {
+    public void backPropagate(List<Double> target) {
         List<Double> delta = new ArrayList<Double>();
         double newWeight = 0;
 

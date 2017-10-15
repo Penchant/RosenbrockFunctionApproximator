@@ -98,16 +98,16 @@ public class Main extends Application {
         System.out.println("Starting data generation");
         List<Example> examples = new ArrayList<Example>();
         double range = Math.abs(dataGenEnd - dataGenStart);
-        int numExamples = (int)(range/dataGenIncrement);
+        int numExamples = (int)Math.pow((double)(range/dataGenIncrement), (double)dimension);
 
         //Create List with appropriate number of examples
         for (int i = 0; i < numExamples; i++) {
             examples.add(new Example());
         }
 
-        // Initialize for lists to have space for inputs and output
+        // Initialize for lists to have space for inputs
         for (Example example : examples) {
-            for (int i = 0; i <= dimension; i++) {
+            for (int i = 0; i < dimension; i++) {
                 example.inputs.add(0d);
             }
         }
@@ -129,14 +129,16 @@ public class Main extends Application {
 
             //Calculate output and add to end of list
             double[] inputs = calculatedPoint.stream().mapToDouble(d -> d).toArray();
-            calculatedPoint.add(functionToApproximate.apply(inputs));
+            Double functionOutput = functionToApproximate.apply(inputs).doubleValue();
+            calculatedPoint.add(functionOutput);
 
-            List<Double> inputList = calculatedPoint.subList(0, calculatedPoint.size() - 2 );
+            List<Double> inputList = calculatedPoint.subList(0, calculatedPoint.size());
             Double output = (Double)calculatedPoint.get(calculatedPoint.size() -1);
             List<Double> outputs = new ArrayList<>();
             outputs.add(output);
+            Example ex = new Example(inputList, outputs);
 
-            examples.set(i, new Example(inputList, outputs)); //Add calculated point as example
+            examples.set(i, ex); //Add calculated point as example
             boolean carry = true; //Carry flag for arithmetic ahead
 
             for (int k = dimension - 1; k >= 0; k--) {
@@ -147,8 +149,8 @@ public class Main extends Application {
                     else {
                         point.set(k, point.get(k) + dataGenIncrement);
                         carry = false;
+                        System.out.println("Current count: " + point.toString());
                     }
-                    System.out.println("Current count: " + point.toString());
                 }
             }
         }
