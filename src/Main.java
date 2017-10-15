@@ -45,7 +45,7 @@ public class Main extends Application {
         primaryStage.setResizable(false);
         primaryStage.getIcons().add(new Image(getClass().getResourceAsStream("rosenbrock.jpg")));
         primaryStage.show();
-        this.primaryStage = primaryStage;
+        Main.primaryStage = primaryStage;
     }
 
     @Override
@@ -69,7 +69,7 @@ public class Main extends Application {
         System.out.println("Created network");
 
         System.out.println("Starting to run network");
-         networkRun = new Thread(network);
+        networkRun = new Thread(network);
         networkRun.start();
 
         // "Test" the progress bar
@@ -94,7 +94,7 @@ public class Main extends Application {
      * @param functionToApproximate Function to generate outputs from
      * @return List of examples of given function in given number of dimensions through range given, with given increment
      */
-    public static List<Example> dataGeneration(double dataGenStart, double dataGenEnd, double dataGenIncrement, int dimension, Function<double[], Double> functionToApproximate) {
+    private static List<Example> dataGeneration(double dataGenStart, double dataGenEnd, double dataGenIncrement, int dimension, Function<double[], Double> functionToApproximate) {
         System.out.println("Starting data generation");
         List<Example> examples = new ArrayList<Example>();
         double range = Math.abs(dataGenEnd - dataGenStart);
@@ -114,7 +114,7 @@ public class Main extends Application {
 
         //Create point counter and initialize
         List <Double> point = new ArrayList<Double>();
-        for(int i = 0; i < dimension; i++){
+        for(int i = 0; i < dimension; i++) {
             point.add(dataGenStart);
         }
 
@@ -133,7 +133,8 @@ public class Main extends Application {
             calculatedPoint.add(functionOutput);
 
             List<Double> inputList = calculatedPoint.subList(0, calculatedPoint.size());
-            Double output = (Double)calculatedPoint.get(calculatedPoint.size() -1);
+            Double output = calculatedPoint.get(calculatedPoint.size() -1);
+
             List<Double> outputs = new ArrayList<>();
             outputs.add(output);
             Example ex = new Example(inputList, outputs);
@@ -189,7 +190,7 @@ public class Main extends Application {
             network.layers.stream()
                 .forEach(layer -> {
                     writer.print("l: ");
-                    layer.nodes.stream() // TODO: Switch to layer.nodes.stream() Before merging your pr Dylan (Assuming this goes in first)
+                    layer.nodes.stream()
                         .forEach(node -> {
                             writer.print("\tn: ");
 
