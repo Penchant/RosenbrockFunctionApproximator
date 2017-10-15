@@ -104,15 +104,12 @@ public class Main extends Application {
 
             // Calculate output and add to end of list
             double[] inputs = calculatedPoint.stream().mapToDouble(d -> d).toArray();
-            Double functionOutput = functionToApproximate.apply(inputs).doubleValue();
-            calculatedPoint.add(functionOutput);
+            Double functionOutput = functionToApproximate.apply(inputs);
 
-            List<Double> inputList = calculatedPoint.subList(0, calculatedPoint.size() - 1);
-            Double output = calculatedPoint.get(calculatedPoint.size() - 1);
 
             List<Double> outputs = new ArrayList<>();
-            outputs.add(output);
-            Example ex = new Example(inputList, outputs);
+            outputs.add(functionOutput);
+            Example ex = new Example(calculatedPoint, outputs);
 
             examples.set(i, ex); // Add calculated point as example
             boolean carry = true; // Carry flag for arithmetic ahead
@@ -125,7 +122,6 @@ public class Main extends Application {
                     else {
                         point.set(k, point.get(k) + dataGenIncrement);
                         carry = false;
-                        System.out.println("Current count: " + point.toString());
                     }
                 }
             }

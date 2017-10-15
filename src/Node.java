@@ -21,10 +21,16 @@ public class Node {
         this.nodeType = nodeType;
 
         double weightFactor = nodeType == Type.OUTPUT ? 100 : 1;
-        for (int i = 0; i < inputCount; i++) {
-            weights.add(Math.random() * weightFactor);
-            newWeights = weights;
+        for (int i = 0; i < inputCount ; i++) {
+            if(nodeType != Type.INPUT) {
+                weights.add(Math.random() * weightFactor);
+            }
+            else{
+                weights.add(1d);
+            }
         }
+
+        newWeights = weights;
     }
 
     public double calculateOutput() {

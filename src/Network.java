@@ -7,6 +7,8 @@ import java.util.stream.IntStream;
 public class Network implements Runnable {
 
     public List<Layer> layers = new ArrayList<>();
+
+    private Layer inputLayer;
     private List<Example> examples;
     private int hiddenLayers;
     private int dimension;
@@ -28,6 +30,7 @@ public class Network implements Runnable {
 
         Layer.network = this;
         layers.add(new Layer(dimension, Type.INPUT));
+        inputLayer = layers.get(0);
         for (int i = 0; i < hiddenLayers; i++) {
             layers.add(new Layer(nodesPerHiddenLayer, isRadialBasis ? Type.RBFHIDDEN : Type.HIDDEN));
         }
@@ -49,6 +52,8 @@ public class Network implements Runnable {
                 }
             }
 
+            int check = (int)(Math.random()*100);
+
             // For each example we set the input layer's node's inputs to the example value,
             // then calculate the output for that example.
             for (int i = 0; i < examples.size(); i++) {
@@ -56,13 +61,15 @@ public class Network implements Runnable {
                     Example example = examples.get(i);
                     Double networkOutput = forwardPropagate(example);
                     output.add(networkOutput);
+                    if(i == check || true) {
+                        //System.out.println("Current error is " + Math.abs(example.outputs.get(0) - networkOutput));
+                        System.out.println("Network predicted " + networkOutput + " for inputs of " + example.inputs.toString() + " and a correct output of " + example.outputs.get(0));
+                    }
 
                     if (Double.isNaN(networkOutput)) {
                         System.err.println("NaN");
                         System.exit(1);
                     }
-
-                    System.out.println("Network predicted " + networkOutput + " for inputs of " + example.inputs.toString() + " and a correct output of " + example.outputs.get(0));
                     backPropagate(examples.get(i).outputs);
                 } catch (IllegalStateException e) {
                     e.printStackTrace();
@@ -77,9 +84,8 @@ public class Network implements Runnable {
                     .map(example -> example.outputs.get(0))
                     .collect(Collectors.toList());
 
-            double error = calculateTotalError(output, outputs);
+            System.out.println("Average error is " + calculateAverageError(output, outputs));
 
-            System.out.println("Total error is " + error);
         }
     }
 
@@ -138,11 +144,12 @@ public class Network implements Runnable {
             int index = outputs.indexOf(outputNode);
             delta.add((outputNode.output - target.get(index)) * outputNode.output * (1 - outputNode.output));
 
+
             // Loops through all Weights attached
             for(int j = 0; j < previousLayer.nodes.size(); j++) {
-                Double currentWeight = outputNode.weights.get(j);
+                Double currentWeight = outputNode.newWeights.get(j);
                 Double weightChange = delta.get(0) * previousLayer.nodes.get(j).output;
-                outputNode.weights.set(j, currentWeight - learningRate * weightChange);
+                outputNode.newWeights.set(j, currentWeight - learningRate * weightChange);
             }
         }
 
@@ -160,7 +167,9 @@ public class Network implements Runnable {
             for (Node hiddenNode : outputs) {
                 double deltaWeightSum = 0;
                 double newDelta;
+
                 // Taking every weight attached to previous layer and summing (previous delta) * (All attached weights)
+
 
                 deltaWeightSum += hiddenNode.weights.stream().mapToDouble(weight -> delta.get(lastLayerIndex - 1) * weight).sum();
 
@@ -181,20 +190,6 @@ public class Network implements Runnable {
     public List<Double> calculateError() {return null;}
 
     private double calculateSigma() {return 0d;}
-
-    /**
-     * Calculates total error from Rosenbrock inputs and output from nodes
-     * f(x) = sum(.5(expected-output)^2)
-     *
-     * @param outputs from calculated node output
-     * @param inputs  from rosenBrock
-     * @return squared error result
-     */
-    public double calculateTotalError(List<Double> outputs, List<Double> inputs) {
-        return IntStream.range(0, outputs.size())
-                .mapToDouble(i -> 0.5d * Math.pow((inputs.get(i) - outputs.get(i)), 2))
-                .sum();
-    }
 
     /**
      * Calculates the Rosenbrock function from the given input
@@ -220,4 +215,24 @@ public class Network implements Runnable {
      * @return The result of applying to Rosenbrock function to the given input
      */
     private static ToDoubleFunction<Double[]> rosenbrock2D = values -> Math.pow(Math.pow(1 - values[0], 2) + 100 * (values[1] - Math.pow(values[0], 2)), 2);
+
+    /**
+     * Calculates total error from Rosenbrock inputs and output from nodes
+     * f(x) = sum(.5(expected-output)^2)
+     * @param outputs from calculated node output
+     * @param inputs from rosenBrock
+     * @return squared error result
+     */
+    public double calculateTotalError(List<Double> outputs, List<Double> inputs) {
+        return IntStream.range(0, outputs.size())
+                .mapToDouble(i -> 0.5d*(Math.pow((inputs.get(i)-outputs.get(i)), 2)))
+                .sum();
+    }
+
+    public double calculateAverageError(List<Double> outputs, List<Double> inputs) {
+        return IntStream.range(0, outputs.size())
+                .mapToDouble(i -> Math.abs(inputs.get(i)-outputs.get(i)))
+                .sum()
+                /((double)outputs.size());
+    }
 }
