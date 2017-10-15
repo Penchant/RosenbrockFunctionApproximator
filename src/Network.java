@@ -70,6 +70,7 @@ public class Network implements Runnable {
                         System.err.println("NaN");
                         System.exit(1);
                     }
+
                     backPropagate(examples.get(i).outputs);
                 } catch (IllegalStateException e) {
                     e.printStackTrace();
@@ -119,8 +120,7 @@ public class Network implements Runnable {
                     node.inputs.clear();
                     node.inputs.addAll(outputs);
                 });
-            } else
-                return outputs.get(0); // Else we have hit the output and need to save it - Assume output has only one node.
+            } else return outputs.get(0); // Else we have hit the output and need to save it - Assume output has only one node.
         }
         throw new IllegalStateException("Should have hit the output layer");
     }
@@ -140,9 +140,7 @@ public class Network implements Runnable {
 
         for(int i = 0; i < outputs.size(); i++) {
             Node outputNode = outputs.get(i);
-
-            int index = outputs.indexOf(outputNode);
-            delta.add((outputNode.output - target.get(index)) * outputNode.output * (1 - outputNode.output));
+            delta.add((outputNode.output - target.get(i)) * outputNode.output * (1 - outputNode.output));
 
 
             // Loops through all Weights attached
@@ -169,8 +167,6 @@ public class Network implements Runnable {
                 double newDelta;
 
                 // Taking every weight attached to previous layer and summing (previous delta) * (All attached weights)
-
-
                 deltaWeightSum += hiddenNode.weights.stream().mapToDouble(weight -> delta.get(lastLayerIndex - 1) * weight).sum();
 
                 newDelta = deltaWeightSum * (1 - hiddenNode.output) * hiddenNode.output;
