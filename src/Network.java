@@ -70,6 +70,7 @@ public class Network implements Runnable {
                         System.err.println("NaN");
                         System.exit(1);
                     }
+
                     backPropagate(examples.get(i).outputs);
                 } catch (IllegalStateException e) {
                     e.printStackTrace();
@@ -77,11 +78,15 @@ public class Network implements Runnable {
                 }
             }
 
+<<<<<<< HEAD
             for (Layer lay : layers) {
                 for (Node node : lay.nodes) {
                     node.updateWeights();
                 }
             }
+=======
+            layers.forEach(layer -> layer.nodes.forEach(node -> node.weights = node.newWeights));
+>>>>>>> b18b6fb66da15f0768cd97544e18580e9c95511c
 
             List<Double> outputs = examples
                     .stream()
@@ -123,8 +128,7 @@ public class Network implements Runnable {
                     node.inputs.clear();
                     node.inputs.addAll(outputs);
                 });
-            } else
-                return outputs.get(0); // Else we have hit the output and need to save it - Assume output has only one node.
+            } else return outputs.get(0); // Else we have hit the output and need to save it - Assume output has only one node.
         }
         throw new IllegalStateException("Should have hit the output layer");
     }
@@ -175,6 +179,7 @@ public class Network implements Runnable {
                         System.out.println("Oh no!");
                     }
                     currentNode.newWeights.set(j,currentNode.newWeights.get(j) - learningRate * weightChange);
+
                 }
             }
         }
