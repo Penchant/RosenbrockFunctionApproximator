@@ -96,7 +96,7 @@ public class Main extends Application {
         System.out.println("Starting data generation");
         List<Example> examples = new ArrayList<Example>();
         double range = Math.abs(dataGenEnd - dataGenStart);
-        int numExamples = (int)Math.pow((range/dataGenIncrement), (double)dimension);
+        int numExamples = (int)Math.pow((range/dataGenIncrement), (double) dimension);
 
         // Create List with appropriate number of examples
         for (int i = 0; i < numExamples; i++) {
@@ -106,10 +106,8 @@ public class Main extends Application {
         // Initialize for lists to have space for inputs
         for (Example example : examples) {
             for (int i = 0; i < dimension; i++) {
-                System.out.print(i);
                 example.inputs.add(0d);
             }
-            System.out.println();
         }
 
         // Create point counter and initialize

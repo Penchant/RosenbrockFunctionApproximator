@@ -80,35 +80,35 @@ public class Network implements Runnable {
      * Used for batch updates, where all examples will have their outputs calculated
      * @return A [List] containing the output for each example in the examples list.
      */
-public Double forwardPropagate(Example example) throws IllegalStateException {
-    Layer input = layers.get(0);
+    public Double forwardPropagate(Example example) throws IllegalStateException {
+        Layer input = layers.get(0);
 
-    // for each node in the input layer, set the input to the node
-    for (int j = 0; j < input.nodes.size(); j++) {
-        Node currentNode = input.nodes.get(j);
-        currentNode.inputs.clear();
-        currentNode.inputs.addAll(example.inputs);
-    }
+        // for each node in the input layer, set the input to the node
+        for (int j = 0; j < input.nodes.size(); j++) {
+            Node currentNode = input.nodes.get(j);
+            currentNode.inputs.clear();
+            currentNode.inputs.addAll(example.inputs);
+        }
 
-    // Calculate the output for each layer and pass it into the next layer
-    for (int j = 0; j < layers.size(); j++) {
-        Layer currentLayer = layers.get(j);
-        List<Double> outputs = currentLayer.calculateNodeOutputs();
-        // If we are not at the output layer, we are going to set the
-        // next layers inputs to the current layers outputs.
-        if (j != layers.size() - 1) {
-            Layer nextLayer = layers.get(j + 1);
-            // Grab each node in the layer
-            for (int k = 0; k < nextLayer.nodes.size(); k++) {
-                Node currentNode = nextLayer.nodes.get(k);
-                currentNode.inputs.clear();
-                // set each node's inputs to the outputs
-                currentNode.inputs.addAll(outputs);
-            }
-        } else return outputs.get(0); // Else we have hit the output and need to save it - Assume output has only one node.
+        // Calculate the output for each layer and pass it into the next layer
+        for (int j = 0; j < layers.size(); j++) {
+            Layer currentLayer = layers.get(j);
+            List<Double> outputs = currentLayer.calculateNodeOutputs();
+            // If we are not at the output layer, we are going to set the
+            // next layers inputs to the current layers outputs.
+            if (j != layers.size() - 1) {
+                Layer nextLayer = layers.get(j + 1);
+                // Grab each node in the layer
+                for (int k = 0; k < nextLayer.nodes.size(); k++) {
+                    Node currentNode = nextLayer.nodes.get(k);
+                    currentNode.inputs.clear();
+                    // set each node's inputs to the outputs
+                    currentNode.inputs.addAll(outputs);
+                }
+            } else return outputs.get(0); // Else we have hit the output and need to save it - Assume output has only one node.
+        }
+        throw new IllegalStateException("Should have hit the output layer");
     }
-    throw new IllegalStateException("Should have hit the output layer");
-}
 
     /**
      * Use forwardProp to get output layer // TODO: ??????
