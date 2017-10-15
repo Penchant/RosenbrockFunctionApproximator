@@ -166,14 +166,12 @@ public class Network implements Runnable {
                 continue;
             // Iterating through all nodes in currentLayer
             for (Node hiddenNode : outputs) {
-                int index = outputs.indexOf(hiddenNode); // TODO: Unused
                 double deltaWeightSum = 0;
                 double newDelta;
                 // Taking every weight attached to previous layer and summing (previous delta) * (All attached weights)
-                for(double weight : hiddenNode.weights) { // TODO: Unused
-                    int i = previousLayer.nodes.indexOf(hiddenNode);
+                for(double weight : hiddenNode.weights) {
                     int j = layers.indexOf(currentLayer);
-                    deltaWeightSum += delta.get(j) * hiddenNode.weights.get(i); // TODO: ArrayIndexOutOfBoundsException (on both lists)
+                    deltaWeightSum += delta.get(j - 1) * weight;
                 }
 
                 newDelta = deltaWeightSum * (1 - hiddenNode.output) * hiddenNode.output;
