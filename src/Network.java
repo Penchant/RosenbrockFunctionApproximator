@@ -77,16 +77,12 @@ public class Network implements Runnable {
                     System.exit(1);
                 }
             }
-
-<<<<<<< HEAD
+            
             for (Layer lay : layers) {
                 for (Node node : lay.nodes) {
                     node.updateWeights();
                 }
             }
-=======
-            layers.forEach(layer -> layer.nodes.forEach(node -> node.weights = node.newWeights));
->>>>>>> b18b6fb66da15f0768cd97544e18580e9c95511c
 
             List<Double> outputs = examples
                     .stream()
