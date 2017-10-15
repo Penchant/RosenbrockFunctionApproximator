@@ -83,21 +83,21 @@ public class Main extends Application {
      * @param functionToApproximate function to generate outputs from
      * @return List of examples of given function in given number of dimensions through range given, with given increment
      */
-    public static List<List<Double>> dataGeneration(double dataGenStart, double dataGenEnd, double dataGenIncrement, int dimension, Function<double[], Double> functionToApproximate)
+    public static List<Example> dataGeneration(double dataGenStart, double dataGenEnd, double dataGenIncrement, int dimension, Function<double[], Double> functionToApproximate)
     {
-        List<List<Double>> examples = new ArrayList<List<Double>>();
+        List<Example> examples = new ArrayList<Example>();
         double range = Math.abs(dataGenEnd - dataGenStart);
         int numExamples = (int)(range/dataGenIncrement);
 
         //Create List with appropriate number of examples
         for (int i = 0; i < numExamples; i++) {
-            examples.add( new ArrayList<Double>());
+            examples.add( new Example());
         }
 
         // Initialize for lists to have space for inputs and output
-        for (List<Double> example : examples) {
+        for (Example example : examples) {
             for (int i = 0; i <= dimension; i++) {
-                example.add(0d);
+                example.inputs.add(0d);
             }
         }
 
@@ -119,7 +119,12 @@ public class Main extends Application {
             double[] inputs = calculatedPoint.stream().mapToDouble(d -> d).toArray();
             calculatedPoint.add(functionToApproximate.apply(inputs));
 
-            examples.add(calculatedPoint); //Add calculated point as example
+            List<Double> inputList = calculatedPoint.subList(0, calculatedPoint.size() - 2 );
+            Double output = (Double)calculatedPoint.get(calculatedPoint.size() -1);
+            List<Double> outputs = new ArrayList<>();
+            outputs.add(output);
+
+            examples.set(i, new Example(inputList, outputs)); //Add calculated point as example
             boolean carry = true; //Carry flag for arithmetic ahead
 
             for (int k = dimension - 1; k >= 0; k++) {

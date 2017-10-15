@@ -6,7 +6,7 @@ import java.util.stream.*;
 
 public class Network {
 
-    private List<List<Double>> examples;
+    private List<Example> examples;
     public List<Layer> layers;
 
     private int hiddenLayers;
@@ -16,11 +16,44 @@ public class Network {
 
     private double learningRate;
 
-    public Network(int hiddenLayers, int nodesPerHiddenLayer, int dimension, boolean isRadialBasis, List<List<Double>> examples) {
+    public Network(int hiddenLayers, int nodesPerHiddenLayer, int dimension, boolean isRadialBasis, List<Example> examples) {
         this.hiddenLayers = hiddenLayers;
         this.dimension = dimension;
         this.nodesPerHiddenLayer = nodesPerHiddenLayer;
         this.isRadialBasis = isRadialBasis;
+
+        this.examples = examples;
+        if(isRadialBasis){
+            nodesPerHiddenLayer = examples.size();
+            hiddenLayers = 1;
+        }
+
+        layers.add(new Layer(dimension, Type.INPUT));
+        for (int i = 0; i < hiddenLayers; i++) {
+            layers.add(new Layer(nodesPerHiddenLayer, isRadialBasis ? Type.RBFHIDDEN : Type.HIDDEN));
+        }
+        layers.add(new Layer(examples.get(0).outputs.size(), Type.OUTPUT));
+
+    }
+
+    public void run(){
+        boolean forever = true;
+        while (forever){
+
+            List<Double> output = new ArrayList<Double> ();
+
+            // For each example we set the input layer's node's inputs to the example value,
+            // then calculate the output for that example.
+            for (int i = 0; i < examples.size (); ++i) {
+                try {
+                    forwardPropogate(examples.get(i));
+                    backPropogate(examples.get(i).outputs);
+                }
+                catch (Exception e){
+                    System.out.println("Well... that is bad");
+                }
+            }
+        }
     }
 
     /**
@@ -28,24 +61,18 @@ public class Network {
      * Used for batch updates, where all examples will have their outputs calculated
      * @return A [List] containing the output for each example in the examples list.
      */
-    public List<Double> forwardPropogate() {
-        List<Double> output = new ArrayList<Double> ();
-        
-        // For each example we set the input layer's node's inputs to the example value,
-        // then calculate the output for that example.
-        for (int i = 0; i < examples.size (); ++i) {
-            List<Double> example = examples.get (i);
+    public Double forwardPropogate(Example example) throws Exception {
             Layer input = layers.get (0);
             // for each node in the input layer
             for (int j = 0; j < input.nodes.size(); ++j) {
                 Node currentNode = input.nodes.get(j);
                 // for each dimension in the example we will have one input
-                for (int k = 0; k < example.size (); ++k) {
+                for (int k = 0; k < example.inputs.size (); ++k) {
                     // if the node doesn't have enough inputs, add one.
                     if (currentNode.inputs.size () < k) {
-                        currentNode.inputs.add(example.get (k));
+                        currentNode.inputs.add(example.inputs.get (k));
                     } else {
-                        currentNode.inputs.set (k, example.get (k));
+                        currentNode.inputs.set (k, example.inputs.get (k));
                     }
                 }
             }
@@ -72,11 +99,10 @@ public class Network {
                     }
                 } else { // Else we have hit the output and need to save it
                     // Assume output has only one node. 
-                    output.add (outputs.get (0));
+                    return outputs.get(0);
                 }
             }
-        }
-        return output;
+            throw new Exception("Should have hit the output layer");
     }
 
     /**
