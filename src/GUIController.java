@@ -64,7 +64,8 @@ public class GUIController implements Initializable {
 
     @FXML
     private void selectFile(MouseEvent event) {
-        Main.save("");
+        Main.shouldPause = !Main.shouldPause;
+//        Main.save("");
     }
 
     @FXML

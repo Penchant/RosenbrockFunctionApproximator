@@ -12,7 +12,7 @@ public class Network implements Runnable {
     private int dimension;
     private int nodesPerHiddenLayer;
     private boolean isRadialBasis;
-    private double learningRate;
+    private double learningRate = 0.001d;
 
     public Network(int hiddenLayers, int nodesPerHiddenLayer, int dimension, boolean isRadialBasis, List<Example> examples) {
         this.hiddenLayers = hiddenLayers;
@@ -41,6 +41,14 @@ public class Network implements Runnable {
         while (forever) {
             List<Double> output = new ArrayList<Double>();
 
+            while (Main.shouldPause) {
+                try {
+                    Thread.sleep(100);
+                } catch(Exception e) {
+                    e.printStackTrace();
+                }
+            }
+
             // For each example we set the input layer's node's inputs to the example value,
             // then calculate the output for that example.
             for (int i = 0; i < examples.size(); i++) {
@@ -48,6 +56,12 @@ public class Network implements Runnable {
                     Example example = examples.get(i);
                     Double networkOutput = forwardPropagate(example);
                     output.add(networkOutput);
+
+                    if (Double.isNaN(networkOutput)) {
+                        System.err.println("NaN");
+                        System.exit(1);
+                    }
+
                     System.out.println("Network predicted " + networkOutput + " for inputs of " + example.inputs.toString() + " and a correct output of " + example.outputs.get(0));
                     backPropagate(examples.get(i).outputs);
                 } catch (IllegalStateException e) {
@@ -67,7 +81,9 @@ public class Network implements Runnable {
                     .map(example -> example.outputs.get(0))
                     .collect(Collectors.toList());
 
-            System.out.println("Total error is " + calculateTotalError(output, outputs));
+            double error = calculateTotalError(output, outputs);
+
+            System.out.println("Total error is " + error);
         }
     }
 
@@ -114,33 +130,31 @@ public class Network implements Runnable {
      */
     public void backPropagate(List<Double> target) {
         List<Double> delta = new ArrayList<Double>();
-        double newWeight = 0; // TODO: Unused
 
         Layer currentLayer = layers.get(hiddenLayers + 1);
 
         Layer previousLayer = layers.get(hiddenLayers);
         List<Node> outputs = currentLayer.nodes;
 
-        for (Node outputNode : outputs) {
+        for(int i = 0; i < outputs.size(); i++) {
+            Node outputNode = outputs.get(i);
+
             int index = outputs.indexOf(outputNode);
             delta.add((outputNode.output - target.get(index)) * outputNode.output * (1 - outputNode.output));
 
-            /**
-             * Loops through all Weights attached
-             */
-            for (Node currentNode : previousLayer.nodes) {
-                int i = previousLayer.nodes.indexOf(currentNode);
-                Double currentWeight = outputNode.weights.get(i);
-                Double weightChange = delta.get(0) * currentNode.output;
-                outputNode.weights.set(i, currentWeight - learningRate * weightChange);
+            // Loops through all Weights attached
+            for(int j = 0; j < previousLayer.nodes.size(); j++) {
+                Double currentWeight = outputNode.weights.get(j);
+                Double weightChange = delta.get(0) * previousLayer.nodes.get(j).output;
+                outputNode.weights.set(j, currentWeight - learningRate * weightChange);
             }
         }
 
-
         // Starting iteration at hidden layer
-        for (int l = hiddenLayers; l > 0; l--) {
+        for (int k = hiddenLayers; k > 0; k--) {
             currentLayer = previousLayer;
-            previousLayer = layers.get(layers.indexOf(currentLayer) - 1);
+            int lastLayerIndex = layers.indexOf(currentLayer);
+            previousLayer = layers.get(lastLayerIndex - 1);
             outputs = currentLayer.nodes;
 
             // Only executing on hidden layers
@@ -148,23 +162,19 @@ public class Network implements Runnable {
                 continue;
             // Iterating through all nodes in currentLayer
             for (Node hiddenNode : outputs) {
-//                int index = outputs.indexOf(hiddenNode); // TODO: Unused
                 double deltaWeightSum = 0;
                 double newDelta;
                 // Taking every weight attached to previous layer and summing (previous delta) * (All attached weights)
-                for (double weight : hiddenNode.weights) {
-                    int j = layers.indexOf(currentLayer);
-                    deltaWeightSum += delta.get(j - 1) * weight;
-                }
+
+                deltaWeightSum += hiddenNode.weights.stream().mapToDouble(weight -> delta.get(lastLayerIndex - 1) * weight).sum();
 
                 newDelta = deltaWeightSum * (1 - hiddenNode.output) * hiddenNode.output;
                 delta.add(newDelta);
 
-                // Updates all weights TODO: CHANGE HARDCODED DELTA INDEX
-                for (Node currentNode : previousLayer.nodes) {
-                    int i = previousLayer.nodes.indexOf(currentNode);
+                // Updates all weights
+                for (int i = 0; i < previousLayer.nodes.size(); i++) {
                     double currentNewWeight = hiddenNode.newWeights.get(i);
-                    Double weightChange = delta.get(layers.indexOf(currentLayer)) * currentNode.output;
+                    Double weightChange = delta.get(lastLayerIndex) * previousLayer.nodes.get(i).output;
                     hiddenNode.newWeights.set(i, currentNewWeight - learningRate * weightChange);
                 }
             }

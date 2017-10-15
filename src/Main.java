@@ -26,6 +26,7 @@ public class Main extends Application {
     private static GUIController controller;
     private static Network network;
     private static boolean shouldStop = false;
+    public static boolean shouldPause = false;
     private static boolean useGUI = true;
     private static boolean isRadialBasis = false;
     private static String savePath;
