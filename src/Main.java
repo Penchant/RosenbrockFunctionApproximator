@@ -10,10 +10,8 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.PrintWriter;
 import java.util.ArrayList;
-import java.util.Formatter;
 import java.util.List;
 import java.util.function.Function;
-import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
 public class Main extends Application {
@@ -45,7 +43,7 @@ public class Main extends Application {
         //primaryStage.setResizable(false);
         primaryStage.getIcons().add(new Image(getClass().getResourceAsStream("rosenbrock.jpg")));
         primaryStage.show();
-        this.primaryStage = primaryStage;
+        Main.primaryStage = primaryStage;
     }
 
     @Override
@@ -64,12 +62,12 @@ public class Main extends Application {
         System.out.println("Starting");
 
         //Create network with examples from data generation
-        network = new Network(hiddenLayers, nodesPerHiddenLater, inputCount, isRadialBasis, dataGeneration(dataGenStart, dataGenEnd, dataGenIncrement, inputCount, Network::rosenbrock));
+        network = new Network(hiddenLayers, nodesPerHiddenLater, inputCount, isRadialBasis, generateData(dataGenStart, dataGenEnd, dataGenIncrement, inputCount, Network::rosenbrock));
 
         System.out.println("Created network");
 
         System.out.println("Starting to run network");
-         networkRun = new Thread(network);
+        networkRun = new Thread(network);
         networkRun.start();
 
         // "Test" the progress bar
@@ -94,13 +92,13 @@ public class Main extends Application {
      * @param functionToApproximate Function to generate outputs from
      * @return List of examples of given function in given number of dimensions through range given, with given increment
      */
-    public static List<Example> dataGeneration(double dataGenStart, double dataGenEnd, double dataGenIncrement, int dimension, Function<double[], Double> functionToApproximate) {
+    private static List<Example> generateData(double dataGenStart, double dataGenEnd, double dataGenIncrement, int dimension, Function<double[], Double> functionToApproximate) {
         System.out.println("Starting data generation");
         List<Example> examples = new ArrayList<Example>();
         double range = Math.abs(dataGenEnd - dataGenStart);
-        int numExamples = (int)Math.pow((double)(range/dataGenIncrement), (double)dimension);
+        int numExamples = (int)Math.pow((range/dataGenIncrement), (double) dimension);
 
-        //Create List with appropriate number of examples
+        // Create List with appropriate number of examples
         for (int i = 0; i < numExamples; i++) {
             examples.add(new Example());
         }
@@ -112,36 +110,35 @@ public class Main extends Application {
             }
         }
 
-        //Create point counter and initialize
+        // Create point counter and initialize
         List <Double> point = new ArrayList<Double>();
-        for(int i = 0; i < dimension; i++){
+        for(int i = 0; i < dimension; i++) {
             point.add(dataGenStart);
         }
 
         System.out.println("Starting to count");
         for(int i = 0; i < numExamples; i++) {
 
-            //Move data from point to separate list to not modify dimensions of point
+            // Move data from point to separate list to not modify dimensions of point
             List<Double> calculatedPoint = new ArrayList<Double>();
             for (int j = 0; j < dimension; j++) {
                 calculatedPoint.add(point.get(j));
             }
 
-            //Calculate output and add to end of list
+            // Calculate output and add to end of list
             double[] inputs = calculatedPoint.stream().mapToDouble(d -> d).toArray();
             Double functionOutput = functionToApproximate.apply(inputs);
 
-            Double output = (Double)calculatedPoint.get(calculatedPoint.size() -1);
             List<Double> outputs = new ArrayList<>();
-            outputs.add(output);
+            outputs.add(functionOutput);
             Example ex = new Example(calculatedPoint, outputs);
 
-            examples.set(i, ex); //Add calculated point as example
-            boolean carry = true; //Carry flag for arithmetic ahead
+            examples.set(i, ex); // Add calculated point as example
+            boolean carry = true; // Carry flag for arithmetic ahead
 
             for (int k = dimension - 1; k >= 0; k--) {
                 if (carry) {
-                    //If over dataGenEnd, carry flag stays set and current dimension is set to dataGenStart
+                    // If over dataGenEnd, carry flag stays set and current dimension is set to dataGenStart
                     if (point.get(k) + dataGenIncrement > dataGenEnd)
                         point.set(k, dataGenStart);
                     else {
@@ -186,7 +183,7 @@ public class Main extends Application {
             network.layers.stream()
                 .forEach(layer -> {
                     writer.print("l: ");
-                    layer.nodes.stream() // TODO: Switch to layer.nodes.stream() Before merging your pr Dylan (Assuming this goes in first)
+                    layer.nodes.stream()
                         .forEach(node -> {
                             writer.print("\tn: ");
 
