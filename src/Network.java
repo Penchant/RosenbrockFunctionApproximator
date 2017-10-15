@@ -56,8 +56,7 @@ public class Network implements Runnable {
 
     @Override
     public void run() {
-        boolean forever = true;
-        while (forever) {
+        while (true) {
             List<Double> output = new ArrayList<Double>();
 
             while (Main.shouldPause) {
@@ -71,23 +70,18 @@ public class Network implements Runnable {
             // For each example we set the input layer's node's inputs to the example value,
             // then calculate the output for that example.
             for (int i = 0; i < examples.size(); i++) {
-                try {
-                    Example example = examples.get(i);
-                    Double networkOutput = forwardPropagate(example);
-                    output.add(networkOutput);
+                Example example = examples.get(i);
+                Double networkOutput = forwardPropagate(example);
+                output.add(networkOutput);
 
-                    System.out.println("Network predicted " + networkOutput + " for inputs of " + example.inputs.toString() + " and a correct output of " + example.outputs.get(0));
+                System.out.println("Network predicted " + networkOutput + " for inputs of " + example.inputs.toString() + " and a correct output of " + example.outputs.get(0));
 
-                    if (Double.isNaN(networkOutput)) {
-                        System.err.println("NaN");
-                        System.exit(1);
-                    }
-
-                    backPropagate(examples.get(i).outputs);
-                } catch (IllegalStateException e) {
-                    e.printStackTrace();
+                if (Double.isNaN(networkOutput)) {
+                    System.err.println("NaN");
                     System.exit(1);
                 }
+
+                backPropagate(examples.get(i).outputs);
             }
 
             layers.forEach(layer -> layer.nodes.forEach(node -> node.updateWeights()));
@@ -107,7 +101,7 @@ public class Network implements Runnable {
      *
      * @return A [List] containing the output for each example in the examples list.
      */
-    public Double forwardPropagate(Example example) throws IllegalStateException {
+    public Double forwardPropagate(Example example) {
         Layer input = layers.get(0);
 
         // For each node in the input layer, set the input to the node
@@ -117,22 +111,22 @@ public class Network implements Runnable {
         });
 
         // Calculate the output for each layer and pass it into the next layer
-        for (int j = 0; j < layers.size(); j++) {
+        for (int j = 0; j < layers.size() - 1; j++) {
             Layer currentLayer = layers.get(j);
             List<Double> outputs = currentLayer.calculateNodeOutputs();
             // If we are not at the output layer, we are going to set the
             // Next layers inputs to the current layers outputs.
-            if (j != layers.size() - 1) {
-                Layer nextLayer = layers.get(j + 1);
-                // Grab each node in the layer
-                nextLayer.nodes.parallelStream().forEach(node -> {
-                    // Set each node's inputs to the outputs
-                    node.inputs.clear();
-                    node.inputs.addAll(outputs);
-                });
-            } else return outputs.get(0); // Else we have hit the output and need to save it - Assume output has only one node.
+            Layer nextLayer = layers.get(j + 1);
+            // Grab each node in the layer
+            nextLayer.nodes.parallelStream().forEach(node -> {
+                // Set each node's inputs to the outputs
+                node.inputs.clear();
+                node.inputs.addAll(outputs);
+            });
         }
-        throw new IllegalStateException("Should have hit the output layer");
+
+        // We have hit the output and need to save it - Assume output has only one node.
+        return layers.get(layers.size() - 1).calculateNodeOutputs().get(0);
     }
 
     /**
@@ -237,6 +231,6 @@ public class Network implements Runnable {
     public double calculateAverageError(List<Double> outputs, List<Double> inputs) {
         return IntStream.range(0, outputs.size())
                 .mapToDouble(i -> Math.abs(inputs.get(i) - outputs.get(i)))
-                .sum() / (double) outputs.size();
+                .sum() / outputs.size();
     }
 }
