@@ -14,7 +14,7 @@ public class Network implements Runnable {
     private int dimension;
     private int nodesPerHiddenLayer;
     private boolean isRadialBasis;
-    private double learningRate = 0.001d;
+    private Double learningRate = 0.001d;
 
     public Network(int hiddenLayers, int nodesPerHiddenLayer, int dimension, boolean isRadialBasis, List<Example> examples) {
         this.hiddenLayers = hiddenLayers;
@@ -79,7 +79,7 @@ public class Network implements Runnable {
 
             for (Layer lay : layers) {
                 for (Node node : lay.nodes) {
-                    node.weights = node.newWeights;
+                    node.updateWeights();
                 }
             }
 
@@ -135,60 +135,49 @@ public class Network implements Runnable {
      * @param target
      */
     public void backPropagate(List<Double> target) {
-        List<Double> delta = new ArrayList<Double>();
-
         Layer currentLayer = layers.get(hiddenLayers + 1);
-
         Layer previousLayer = layers.get(hiddenLayers);
-        List<Node> outputs = currentLayer.nodes;
+        List<Node> outputNodes = currentLayer.nodes;
 
-        for(int i = 0; i < outputs.size(); i++) {
-            Node outputNode = outputs.get(i);
+        //Updating weights on output layer
+        for (int i = 0; i < outputNodes.size(); i++) {
+            Node outputNode = outputNodes.get(i);
+            outputNode.delta = -1 * (target.get(i) - outputNode.output) * outputNode.output * (1 - outputNode.output);
 
-            int index = outputs.indexOf(outputNode);
-            delta.add((outputNode.output - target.get(index)) * outputNode.output * (1 - outputNode.output));
-
-
-            // Loops through all Weights attached
-            for(int j = 0; j < previousLayer.nodes.size(); j++) {
-                Double currentWeight = outputNode.newWeights.get(j);
-                Double weightChange = delta.get(0) * previousLayer.nodes.get(j).output;
-                outputNode.newWeights.set(j, currentWeight - learningRate * weightChange);
+            for (int j = 0; j < outputNode.newWeights.size(); j++) {
+                double weightChange = outputNode.delta * previousLayer.nodes.get(j).output;
+                if(Double.isNaN(weightChange) || outputNode.delta == 0){
+                    System.out.println("Oh no!");
+                }
+                outputNode.newWeights.set(j,outputNode.newWeights.get(j) - learningRate * weightChange);
             }
         }
 
-        // Starting iteration at hidden layer
-        for (int k = hiddenLayers; k > 0; k--) {
-            currentLayer = previousLayer;
-            int lastLayerIndex = layers.indexOf(currentLayer);
-            previousLayer = layers.get(lastLayerIndex - 1);
-            outputs = currentLayer.nodes;
+        //Iterating over all hidden layers to calculate weight change
+        for(int x = hiddenLayers; x > 0; x--) {
+            outputNodes = currentLayer.nodes;
+            currentLayer = layers.get(x);
+            previousLayer = layers.get(x - 1);
 
-            // Only executing on hidden layers
-            if (currentLayer.layerType != Type.HIDDEN && currentLayer.layerType != Type.RBFHIDDEN)
-                continue;
-            // Iterating through all nodes in currentLayer
-            for (Node hiddenNode : outputs) {
-                double deltaWeightSum = 0;
-                double newDelta;
+            //Updates the weights of each node in the layer
+            for (int i = 0; i < currentLayer.nodes.size(); i++) {
+                final int index = i;
+                Node currentNode = currentLayer.nodes.get(i);
 
-                // Taking every weight attached to previous layer and summing (previous delta) * (All attached weights)
+                double weightedDeltaSum = outputNodes.stream().mapToDouble(node -> node.delta * node.weights.get(index)).sum();
+                currentNode.delta = weightedDeltaSum * currentNode.output * (1 - currentNode.output);
 
+                //Updating each weight in the node
+                for (int j = 0; j < currentNode.newWeights.size(); j++) {
 
-                deltaWeightSum += hiddenNode.weights.stream().mapToDouble(weight -> delta.get(lastLayerIndex - 1) * weight).sum();
-
-                newDelta = deltaWeightSum * (1 - hiddenNode.output) * hiddenNode.output;
-                delta.add(newDelta);
-
-                // Updates all weights
-                for (int i = 0; i < previousLayer.nodes.size(); i++) {
-                    double currentNewWeight = hiddenNode.newWeights.get(i);
-                    Double weightChange = delta.get(lastLayerIndex) * previousLayer.nodes.get(i).output;
-                    hiddenNode.newWeights.set(i, currentNewWeight - learningRate * weightChange);
+                    double weightChange = currentNode.delta * previousLayer.nodes.get(j).output;
+                    if(Double.isNaN(weightChange)){
+                        System.out.println("Oh no!");
+                    }
+                    currentNode.newWeights.set(j,currentNode.newWeights.get(j) - learningRate * weightChange);
                 }
             }
         }
-
     }
 
     public List<Double> calculateError() {return null;}

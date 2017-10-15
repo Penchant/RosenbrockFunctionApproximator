@@ -2,6 +2,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Function;
 import java.util.function.ToDoubleFunction;
+import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 public class Node {
@@ -14,6 +15,7 @@ public class Node {
 
     public double output;
     public double mu = 0;
+    public double delta;
 
     private Type nodeType;
 
@@ -30,7 +32,10 @@ public class Node {
             }
         }
 
-        newWeights = weights;
+        for (int j = 0; j < weights.size(); j++) {
+            newWeights.add(weights.get(j));
+        }
+
     }
 
     public double calculateOutput() {
@@ -56,7 +61,9 @@ public class Node {
     }
 
     public void updateWeights() {
-        weights = newWeights;
+        for (int j = 0; j < newWeights.size(); j++) {
+            weights.set(j, newWeights.get(j));
+        }
     }
 
     /**
