@@ -31,8 +31,24 @@ public class Network implements Runnable {
         Layer.network = this;
         layers.add(new Layer(dimension, Type.INPUT));
         inputLayer = layers.get(0);
-        for (int i = 0; i < hiddenLayers; i++) {
-            layers.add(new Layer(nodesPerHiddenLayer, isRadialBasis ? Type.RBFHIDDEN : Type.HIDDEN));
+        if (!isRadialBasis) {
+            for (int i = 0; i < hiddenLayers; i++) {
+                layers.add(new Layer(nodesPerHiddenLayer, Type.HIDDEN));
+            }
+        }
+        else {
+            Layer rbfHidden = new Layer (examples.size (), Type.RBFHIDDEN);
+            for (int i = 0; i < examples.size (); ++i) {
+                Example ex = examples.get (i);
+                for (int j = 0; j < rbfHidden.nodes.size (); ++j) {
+                    Node current = rbfHidden.nodes.get (j);
+                    for (int k = 0; k < ex.inputs.size (); ++k) {                       
+                        current.weights.set(k, ex.get (k));                        
+                    }
+                    current.mu = ex.outputs.get (0);
+                }
+            }
+            layers.add (rbfHidden);
         }
 
         layers.add(new Layer(examples.get(0).outputs.size(), Type.OUTPUT));
