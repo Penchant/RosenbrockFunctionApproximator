@@ -47,6 +47,8 @@ public class Network implements Runnable {
 
             List<Double> output = new ArrayList<Double> ();
 
+            int check = (int)(Math.random()*100);
+
             // For each example we set the input layer's node's inputs to the example value,
             // then calculate the output for that example.
             for (int i = 0; i < examples.size (); i++) {
@@ -54,7 +56,11 @@ public class Network implements Runnable {
                     Example example = examples.get(i);
                     Double networkOutput = forwardPropagate(example);
                     output.add(networkOutput);
-                    System.out.println("Network predicted " + networkOutput + " for inputs of " + example.inputs.toString() + " and a correct output of " + example.outputs.get(0));
+                    if(i == check || true) {
+                        //System.out.println("Current error is " + Math.abs(example.outputs.get(0) - networkOutput));
+                        System.out.println("Network predicted " + networkOutput + " for inputs of " + example.inputs.toString() + " and a correct output of " + example.outputs.get(0));
+                    }
+
                     backPropagate(examples.get(i).outputs);
                 } catch (IllegalStateException e){
                     e.printStackTrace();
@@ -73,7 +79,8 @@ public class Network implements Runnable {
                     .map(example -> example.outputs.get(0))
                     .collect(Collectors.toList());
 
-            System.out.println("Total error is " + calculateTotalError(output, outputs));
+            System.out.println("Average error is " + calculateAverageError(output, outputs));
+
         }
     }
 
@@ -213,5 +220,12 @@ public class Network implements Runnable {
         return IntStream.range(0, outputs.size())
                 .mapToDouble(i -> 0.5d*(Math.pow((inputs.get(i)-outputs.get(i)), 2)))
                 .sum();
+    }
+
+    public double calculateAverageError(List<Double> outputs, List<Double> inputs) {
+        return IntStream.range(0, outputs.size())
+                .mapToDouble(i -> Math.abs(inputs.get(i)-outputs.get(i)))
+                .sum()
+                /((double)outputs.size());
     }
 }
