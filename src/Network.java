@@ -4,10 +4,10 @@ import java.util.List;
 import java.util.function.ToDoubleFunction;
 import java.util.stream.*;
 
-public class Network {
+public class Network implements Runnable {
 
     private List<Example> examples;
-    public List<Layer> layers;
+    public List<Layer> layers = new ArrayList<>();
 
     private int hiddenLayers;
     private int dimension;
@@ -28,6 +28,7 @@ public class Network {
             hiddenLayers = 1;
         }
 
+        Layer.network = this;
         layers.add(new Layer(dimension, Type.INPUT));
         for (int i = 0; i < hiddenLayers; i++) {
             layers.add(new Layer(nodesPerHiddenLayer, isRadialBasis ? Type.RBFHIDDEN : Type.HIDDEN));
@@ -36,6 +37,7 @@ public class Network {
 
     }
 
+    @Override
     public void run(){
         boolean forever = true;
         while (forever){
@@ -46,13 +48,26 @@ public class Network {
             // then calculate the output for that example.
             for (int i = 0; i < examples.size (); ++i) {
                 try {
-                    forwardPropogate(examples.get(i));
+                    Example example =examples.get(i);
+                    Double networkOutput = forwardPropogate(example);
+                    output.add(networkOutput);
+                    System.out.println("Network predicted " + networkOutput + "for inputs of " + example.inputs.toString() + " and a correct output of " + example.outputs.get(0));
                     backPropogate(examples.get(i).outputs);
                 }
                 catch (Exception e){
                     System.out.println("Well... that is bad");
                 }
             }
+
+            for (Layer lay: layers) {
+                for(Node node : lay.nodes){
+                    node.weights = node.newWeights;
+                }
+            }
+
+            List<Double> outputs = examples.stream().map(example -> example.outputs.get(0)).collect(Collectors.toList());
+
+            System.out.println("Total error is " + calculateTotalError(output, outputs));
         }
     }
 

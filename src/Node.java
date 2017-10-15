@@ -1,3 +1,4 @@
+import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Function;
 import java.util.function.ToDoubleFunction;
@@ -16,8 +17,14 @@ public class Node {
 
     private Type nodeType;
 
-    public Node(Type nodeType) {
+    public Node(Type nodeType, int inputCount) {
         this.nodeType = nodeType;
+
+        weights = new ArrayList<>();
+        for (int i = 0; i < inputCount ; i++) {
+            weights.add(Math.random() * 10);
+            newWeights = weights;
+        }
     }
 
     public double calculateOutput() {
@@ -42,7 +49,7 @@ public class Node {
         );
     }
 
-    public void updateWeights(List<Double> newWeights) {
+    public void updateWeights() {
         weights = newWeights;
     }
 

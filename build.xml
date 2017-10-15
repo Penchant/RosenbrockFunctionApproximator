@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project name="rosenbrockfunctionapproximator" default="all">
-  
+
   <property environment="env"/>
   <!-- Uncomment the following property if no tests compilation is needed -->
   <!-- 

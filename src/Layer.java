@@ -5,26 +5,29 @@ import java.util.stream.IntStream;
 public class Layer {
 
     public List<Node> nodes;
-    public int nodeCount;
     public Type layerType;
-
+    public int id;
+    static public int count = 0;
+    static public Network network;
 
     public Layer(int nodeCount, Type layerType) {
-        this.nodeCount = nodeCount;
         this.layerType = layerType;
+        this.id = count;
+        count++;
+
+        int inputCount = layerType == Type.INPUT ? nodeCount : network.layers.get(id -1).nodes.size();
 
         nodes = IntStream.range(0, nodeCount)
                 .boxed()
                 .parallel()
-                .map(i -> new Node(layerType))
+                .map(i -> new Node(layerType, inputCount))
                 .collect(Collectors.toList());
     }
 
-    public void updateNodeWeights(List<List<Double>> weights) {
-        IntStream.range(0, weights.size())
-                .boxed()
+    public void updateNodeWeights() {
+        nodes.stream()
                 .parallel()
-                .forEach(i -> nodes.get(i).updateWeights(weights.get(i)));
+                .forEach(i -> i.updateWeights());
     }
 
     public List<Double> calculateNodeOutputs() {

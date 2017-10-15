@@ -1,9 +1,10 @@
+import java.util.ArrayList;
 import java.util.List;
 
 public class Example {
 
-    public List<Double> inputs;
-    public List<Double> outputs;
+    public List<Double> inputs = new ArrayList<>();
+    public List<Double> outputs = new ArrayList<>();
 
     public Example(){}
 

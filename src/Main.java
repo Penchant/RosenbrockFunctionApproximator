@@ -34,6 +34,7 @@ public class Main extends Application {
     public static int dimension;
     public static int nodesPerHiddenLayer;
     private static String savePath;
+    private static Thread networkRun;
 
     @Override
     public void start(Stage primaryStage) throws Exception {
@@ -50,6 +51,8 @@ public class Main extends Application {
     @Override
     public void stop() throws Exception {
         shouldStop = true;
+        if(networkRun != null)
+            networkRun.stop();
         super.stop();
     }
 
@@ -58,8 +61,16 @@ public class Main extends Application {
 
     public static void start (double dataGenStart, double dataGenEnd, double dataGenIncrement, int hiddenLayers, int inputCount, int nodesPerHiddenLater, boolean isRadialBasis) {
 
+        System.out.println("Starting");
+
         //Create network with examples from data generation
         network = new Network(hiddenLayers, nodesPerHiddenLater, inputCount, isRadialBasis, dataGeneration(dataGenStart, dataGenEnd, dataGenIncrement, inputCount, Network::rosenbrock));
+
+        System.out.println("Created network");
+
+        System.out.println("Starting to run network");
+         networkRun = new Thread(network);
+        networkRun.start();
 
         // "Test" the progress bar
         if(useGUI) {
@@ -76,22 +87,22 @@ public class Main extends Application {
 
     /**
      *  Generates examples of given function
-     * @param dataGenStart start of range for data
-     * @param dataGenEnd end of range for data
-     * @param dataGenIncrement how much to increment between each data point
-     * @param dimension how many dimensions to generate data in
-     * @param functionToApproximate function to generate outputs from
+     * @param dataGenStart Start of range for data
+     * @param dataGenEnd End of range for data
+     * @param dataGenIncrement How much to increment between each data point
+     * @param dimension How many dimensions to generate data in
+     * @param functionToApproximate Function to generate outputs from
      * @return List of examples of given function in given number of dimensions through range given, with given increment
      */
-    public static List<Example> dataGeneration(double dataGenStart, double dataGenEnd, double dataGenIncrement, int dimension, Function<double[], Double> functionToApproximate)
-    {
+    public static List<Example> dataGeneration(double dataGenStart, double dataGenEnd, double dataGenIncrement, int dimension, Function<double[], Double> functionToApproximate) {
+        System.out.println("Starting data generation");
         List<Example> examples = new ArrayList<Example>();
         double range = Math.abs(dataGenEnd - dataGenStart);
         int numExamples = (int)(range/dataGenIncrement);
 
         //Create List with appropriate number of examples
         for (int i = 0; i < numExamples; i++) {
-            examples.add( new Example());
+            examples.add(new Example());
         }
 
         // Initialize for lists to have space for inputs and output
@@ -102,11 +113,12 @@ public class Main extends Application {
         }
 
         //Create point counter and initialize
-        List <Double> point = new ArrayList<Double>(){};
+        List <Double> point = new ArrayList<Double>();
         for(int i = 0; i < dimension; i++){
             point.add(dataGenStart);
         }
 
+        System.out.println("Starting to count");
         for(int i = 0; i < numExamples; i++) {
 
             //Move data from point to separate list to not modify dimensions of point
@@ -127,7 +139,7 @@ public class Main extends Application {
             examples.set(i, new Example(inputList, outputs)); //Add calculated point as example
             boolean carry = true; //Carry flag for arithmetic ahead
 
-            for (int k = dimension - 1; k >= 0; k++) {
+            for (int k = dimension - 1; k >= 0; k--) {
                 if (carry) {
                     //If over dataGenEnd, carry flag stays set and current dimension is set to dataGenStart
                     if (point.get(k) + dataGenIncrement > dataGenEnd)
@@ -136,9 +148,12 @@ public class Main extends Application {
                         point.set(k, point.get(k) + dataGenIncrement);
                         carry = false;
                     }
+                    System.out.println("Current count: " + point.toString());
                 }
             }
         }
+
+        System.out.println("Finishing data generation");
 
         return examples;
     }
