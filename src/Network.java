@@ -34,8 +34,8 @@ public class Network implements Runnable {
         for (int i = 0; i < hiddenLayers; i++) {
             layers.add(new Layer(nodesPerHiddenLayer, isRadialBasis ? Type.RBFHIDDEN : Type.HIDDEN));
         }
-        layers.add(new Layer(examples.get(0).outputs.size(), Type.OUTPUT));
 
+        layers.add(new Layer(examples.get(0).outputs.size(), Type.OUTPUT));
     }
 
     @Override
@@ -83,7 +83,7 @@ public class Network implements Runnable {
     public Double forwardPropagate(Example example) throws IllegalStateException {
         Layer input = layers.get(0);
 
-        // for each node in the input layer, set the input to the node
+        // For each node in the input layer, set the input to the node
         for (int j = 0; j < input.nodes.size(); j++) {
             Node currentNode = input.nodes.get(j);
             currentNode.inputs.clear();
@@ -95,16 +95,15 @@ public class Network implements Runnable {
             Layer currentLayer = layers.get(j);
             List<Double> outputs = currentLayer.calculateNodeOutputs();
             // If we are not at the output layer, we are going to set the
-            // next layers inputs to the current layers outputs.
+            // Next layers inputs to the current layers outputs.
             if (j != layers.size() - 1) {
                 Layer nextLayer = layers.get(j + 1);
                 // Grab each node in the layer
-                for (int k = 0; k < nextLayer.nodes.size(); k++) {
-                    Node currentNode = nextLayer.nodes.get(k);
-                    currentNode.inputs.clear();
-                    // set each node's inputs to the outputs
-                    currentNode.inputs.addAll(outputs);
-                }
+                nextLayer.nodes.stream().forEach(node -> {
+                    // Set each node's inputs to the outputs
+                    node.inputs.clear();
+                    node.inputs.addAll(outputs);
+                });
             } else return outputs.get(0); // Else we have hit the output and need to save it - Assume output has only one node.
         }
         throw new IllegalStateException("Should have hit the output layer");
