@@ -53,7 +53,7 @@ public class Network implements Runnable {
                     Double networkOutput = forwardPropagate(example);
                     output.add(networkOutput);
                     System.out.println("Network predicted " + networkOutput + " for inputs of " + example.inputs.toString() + " and a correct output of " + example.outputs.get(0));
-                    forwardPropagate(examples.get(i));
+                    backPropagate(examples.get(i).outputs);
                 } catch (IllegalStateException e){
                     e.printStackTrace();
                     System.exit(1);

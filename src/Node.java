@@ -20,9 +20,6 @@ public class Node {
     public Node(Type nodeType, int inputCount) {
         this.nodeType = nodeType;
 
-        weights = new ArrayList<>();
-        inputs = new ArrayList<>();
-
         for (int i = 0; i < inputCount ; i++) {
             weights.add(Math.random() * 10);
             newWeights = weights;
