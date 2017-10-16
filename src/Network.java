@@ -118,7 +118,7 @@ public class Network implements Runnable {
                     .map(example -> example.outputs.get(0))
                     .collect(Collectors.toList());
 
-           // System.out.println("Average error is " + calculateAverageError(output, outputs));
+            System.out.println("Average error is " + calculateAverageError(output, outputs));
 
             run_count++;
             // If we have done 5 runs, do a verify check to see how error is coming along
@@ -134,9 +134,10 @@ public class Network implements Runnable {
                 // average error across verifySet
                 Double error = total / verifySet.size();
                 System.out.println("Verify Error " + error);
+                verifyError.offer(error);
+
                 // if verifyError is full check slope
-                if (verifyError.size() == 5) {
-                    System.out.println("Im in");
+                if (verifyError.size() == 20) {
                     double first = verifyError.getFirst();
                     double last = verifyError.getLast();
                     // if slope is positive stop experiment
@@ -145,8 +146,7 @@ public class Network implements Runnable {
                     }
                     // pop off oldest error and add new error
                     verifyError.remove();
-                    verifyError.offer(error);
-                }       
+                }
             }
         }
         List<Double> errors = new ArrayList<Double>();
