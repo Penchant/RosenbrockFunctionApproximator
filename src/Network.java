@@ -14,7 +14,7 @@ public class Network implements Runnable {
     private int dimension;
     private int nodesPerHiddenLayer;
     private boolean isRadialBasis;
-    private Double learningRate = 0.001d;
+    private Double learningRate = 0.0000000001d;
 
     public Network(int hiddenLayers, int nodesPerHiddenLayer, int dimension, boolean isRadialBasis, List<Example> examples) {
         this.hiddenLayers = hiddenLayers;
@@ -27,7 +27,7 @@ public class Network implements Runnable {
             nodesPerHiddenLayer = examples.size();
             hiddenLayers = 1;
         }
-
+        learningRate = -1 * learningRate / examples.size();
         Layer.network = this;
         layers.add(new Layer(dimension, Type.INPUT));
         inputLayer = layers.get(0);
@@ -76,7 +76,7 @@ public class Network implements Runnable {
                     Double networkOutput = forwardPropagate(example);
                     output.add(networkOutput);
 
-                    System.out.println("Network predicted " + networkOutput + " for inputs of " + example.inputs.toString() + " and a correct output of " + example.outputs.get(0));
+                    //System.out.println("Network predicted " + networkOutput + " for inputs of " + example.inputs.toString() + " and a correct output of " + example.outputs.get(0));
 
                     if (Double.isNaN(networkOutput)) {
                         System.err.println("NaN");
@@ -155,6 +155,7 @@ public class Network implements Runnable {
 
                 if (Double.isNaN(weightChange)){
                     System.err.println("weightChange is not a number");
+                    System.exit(0);
                 }
                 if (outputNode.delta == 0) {
                     System.err.println("delta is zero");

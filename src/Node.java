@@ -18,6 +18,7 @@ public class Node {
     public double delta;
 
     private Type nodeType;
+    private Function<Double, Double> activationFunction;
 
     public Node(Type nodeType, int inputCount) {
         this.nodeType = nodeType;
@@ -36,10 +37,11 @@ public class Node {
             newWeights.add(weights.get(j));
         }
 
+        setActivationFunction();
+
     }
 
-    public double calculateOutput() {
-        final Function<Double, Double> activationFunction;
+    private void setActivationFunction(){
 
         switch (nodeType) {
             case HIDDEN:    activationFunction = logisticActivation; break;
@@ -49,6 +51,9 @@ public class Node {
             case RBFINPUT:
             default:        activationFunction = linearActivation; break;
         }
+    }
+
+    public double calculateOutput() {
 
         return output = activationFunction.apply(
                 IntStream.range(0, inputs.size())

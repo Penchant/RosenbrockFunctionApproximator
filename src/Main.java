@@ -206,11 +206,11 @@ public class Main extends Application {
             new CommandLineParameter("-h",     "Displays the help text",                            f -> printHelp(),                   null, CommandLineParameter.Type.Void),     // Help
             new CommandLineParameter("-rb",    "Sets the network to use radial basis",              f -> isRadialBasis = true,         false, CommandLineParameter.Type.Void),     // Radial Basis
             new CommandLineParameter("-ds",    "The start point for the data (example) generation", i -> dataGenStart = (double) i,       0d, CommandLineParameter.Type.Double),   // Data Generation Start
-            new CommandLineParameter("-de",    "The end point for the data (example) generation",   i -> dataGenEnd = (double) i,        20d, CommandLineParameter.Type.Double),   // Data Generation End
+            new CommandLineParameter("-de",    "The end point for the data (example) generation",   i -> dataGenEnd = (double) i,        2d, CommandLineParameter.Type.Double),   // Data Generation End
             new CommandLineParameter("-di",    "The incrementation of the data point",              i -> dataGenIncrement = (double) i, 0.1d, CommandLineParameter.Type.Double),   // Data Generation Incrementation
             new CommandLineParameter("-hl",    "The amount of hidden layers",                       i -> hiddenLayers = (int) i,           1, CommandLineParameter.Type.Integer),  // Hidden Layers
             new CommandLineParameter("-d",     "The number of dimensions the function will use",    i -> dimension = (int) i,              2, CommandLineParameter.Type.Integer),  // Dimensions
-            new CommandLineParameter("-n",     "The number of nodes per hidden layer",              i -> nodesPerHiddenLayer = (int) i,    3, CommandLineParameter.Type.Integer),  // Nodes Per Hidden Layer
+            new CommandLineParameter("-n",     "The number of nodes per hidden layer",              i -> nodesPerHiddenLayer = (int) i,    300, CommandLineParameter.Type.Integer),  // Nodes Per Hidden Layer
             new CommandLineParameter("-s",     "Save the weights to a given output file",           s -> savePath = (String) s,           "", CommandLineParameter.Type.String),   // Save
     };
 
