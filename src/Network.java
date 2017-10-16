@@ -17,7 +17,7 @@ public class Network implements Runnable {
     private List<Example> testSet;
     private int hiddenLayers;
     private int dimension;
-    private Double learningRate = .0001d;
+    private Double learningRate = .000001d;
 
 
     public Network(final List<Integer> hiddenLayers, int dimension, boolean isRadialBasis, List<Example> examples) {
@@ -122,7 +122,7 @@ public class Network implements Runnable {
 
             run_count++;
             // If we have done 5 runs, do a verify check to see how error is coming along
-            if (run_count % 5 == 0) {
+            if (run_count % 200 == 0) {
                 double total = 0;
                 // calculate error for each example in the verifySet
                 for (int i = 0; i < verifySet.size(); i++){
@@ -149,6 +149,7 @@ public class Network implements Runnable {
                 }
             }
         }
+        System.out.println("Run Ended");
         List<Double> errors = new ArrayList<Double>();
         List<Boolean> correctApproximations = new ArrayList<Boolean>();
         for (int i = 0; i < testSet.size (); i++) {
