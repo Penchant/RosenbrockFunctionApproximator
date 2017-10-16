@@ -17,7 +17,7 @@ public class Network implements Runnable {
     private List<Example> testSet;
     private int hiddenLayers;
     private int dimension;
-    private Double learningRate = .000000000001d;
+    private Double learningRate = .0001d;
 
 
     public Network(final List<Integer> hiddenLayers, int dimension, boolean isRadialBasis, List<Example> examples) {
@@ -30,7 +30,8 @@ public class Network implements Runnable {
 
         layers.add(inputLayer = new Layer(dimension, Type.INPUT));
 
-        this.examples = examples;
+        this.fullSet = examples;
+        setupExamples();
 
         if (!isRadialBasis) {
             for (int i : hiddenLayers) {
@@ -62,7 +63,7 @@ public class Network implements Runnable {
         // Test set will be 10% of the total example size
         int testSize = fullSet.size() / 10;
         // Verify set will be 5% of the total example size
-        int verifySize = fullSet.size() / 5;
+        int verifySize = fullSet.size() / 20;
         // setup the test examples
         for (int i = 0; i < testSize; i++) {
             int index = ThreadLocalRandom.current().nextInt(0, fullSet.size() - 1);
@@ -117,7 +118,7 @@ public class Network implements Runnable {
                     .map(example -> example.outputs.get(0))
                     .collect(Collectors.toList());
 
-            System.out.println("Average error is " + calculateAverageError(output, outputs));
+           // System.out.println("Average error is " + calculateAverageError(output, outputs));
 
             run_count++;
             // If we have done 5 runs, do a verify check to see how error is coming along
@@ -132,8 +133,10 @@ public class Network implements Runnable {
                 }
                 // average error across verifySet
                 Double error = total / verifySet.size();
+                System.out.println("Verify Error " + error);
                 // if verifyError is full check slope
-                if (!verifyError.offer(error)) {
+                if (verifyError.size() == 5) {
+                    System.out.println("Im in");
                     double first = verifyError.getFirst();
                     double last = verifyError.getLast();
                     // if slope is positive stop experiment
