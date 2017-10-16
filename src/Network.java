@@ -78,6 +78,7 @@ public class Network implements Runnable {
         }
         // Once test and verify values are pulled out, set examples to remainder.
         examples = fullSet;
+        Node.sigma = calculateSigma();
     }
 
     @Override
@@ -258,13 +259,18 @@ public class Network implements Runnable {
 
     private double calculateSigma() {
         double maxDistance = 0;
-        
+
         for (int i = 0; i < examples.size(); i++) {
             double sum = 0;
+            Example current = examples.get(i);
             for (int j = i+1; j < examples.size(); j++) {
-                double inputVal = examples.get(i).inputs.get(i);
-                double exampleVal = examples.get(i).inputs.get(j);
-                sum += (inputVal - exampleVal) * (inputVal - exampleVal);
+                Example otherExample = examples.get(j);
+                for (int k = 0; k < current.inputs.size(); k++) {
+
+                    double inputVal = current.inputs.get(k);
+                    double exampleVal = otherExample.inputs.get(k);
+                    sum += (inputVal - exampleVal) * (inputVal - exampleVal);
+                }
             }
 
             if (sum > maxDistance) {
