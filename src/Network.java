@@ -1,7 +1,6 @@
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Queue;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.function.ToDoubleFunction;
 import java.util.stream.Collectors;
@@ -18,39 +17,29 @@ public class Network implements Runnable {
     private List<Example> testSet;
     private int hiddenLayers;
     private int dimension;
-    private int nodesPerHiddenLayer;
-    private boolean isRadialBasis;
-    private Double learningRate = 0.001d;
+    private double learningRate = 0.001d;
 
-    public Network(int hiddenLayers, int nodesPerHiddenLayer, int dimension, boolean isRadialBasis, List<Example> _examples) {
-        this.hiddenLayers = hiddenLayers;
+    public Network(final List<Integer> hiddenLayers, int dimension, boolean isRadialBasis, List<Example> examples) {
+        this.hiddenLayers = hiddenLayers.size();
         this.dimension = dimension;
-        this.nodesPerHiddenLayer = nodesPerHiddenLayer;
-        this.isRadialBasis = isRadialBasis;
-
-        this.fullSet = _examples;
-        setupExamples();
-        if (isRadialBasis) {
-            nodesPerHiddenLayer = examples.size();
-            hiddenLayers = 1;
-        }
-
         Layer.network = this;
-        layers.add(new Layer(dimension, Type.INPUT));
-        inputLayer = layers.get(0);
+
+        layers.add(inputLayer = new Layer(dimension, Type.INPUT));
+
+        this.examples = examples;
 
         if (!isRadialBasis) {
-            for (int i = 0; i < hiddenLayers; i++) {
-                layers.add(new Layer(nodesPerHiddenLayer, Type.HIDDEN));
+            for (int i : hiddenLayers) {
+                layers.add(new Layer(i, Type.HIDDEN));
             }
         } else {
-            Layer rbfHidden = new Layer (examples.size(), Type.RBFHIDDEN);
+            this.hiddenLayers = 1;
+
+            Layer rbfHidden = new Layer(examples.size(), Type.RBFHIDDEN);
 
             examples.forEach(example ->
                 rbfHidden.nodes.forEach(current -> {
-                    for (int k = 0; k < example.inputs.size(); k++) {
-                        current.weights.set(k, example.inputs.get(k));
-                    }
+                    current.weights = new ArrayList<Double>(example.inputs);
                     current.mu = example.outputs.get(0);
                 })
             );
@@ -88,10 +77,10 @@ public class Network implements Runnable {
 
     @Override
     public void run() {
-        boolean forever = true;
         int run_count = 0;
         LinkedList<Double> verifyError = new LinkedList<Double>();
-        while (forever) {
+        boolean shouldRun = true;
+        while (shouldRun) {
             List<Double> output = new ArrayList<Double>();
 
             while (Main.shouldPause) {
@@ -104,28 +93,21 @@ public class Network implements Runnable {
 
             // For each example we set the input layer's node's inputs to the example value,
             // then calculate the output for that example.
-            for (int i = 0; i < examples.size(); i++) {
-                try {
-                    Example example = examples.get(i);
-                    Double networkOutput = forwardPropagate(example);
-                    output.add(networkOutput);
+            examples.forEach(example -> {
+                Double networkOutput = forwardPropagate(example);
+                output.add(networkOutput);
 
-                    System.out.println("Network predicted " + networkOutput + " for inputs of " + example.inputs.toString() + " and a correct output of " + example.outputs.get(0));
+                System.out.println("Network predicted " + networkOutput + " for inputs of " + example.inputs.toString() + " and a correct output of " + example.outputs.get(0));
 
-                    if (Double.isNaN(networkOutput)) {
-                        System.err.println("NaN");
-                        System.exit(1);
-                    }
-
-                    backPropagate(examples.get(i).outputs);
-                } catch (IllegalStateException e) {
-                    e.printStackTrace();
+                if (Double.isNaN(networkOutput)) {
+                    System.err.println("NaN");
                     System.exit(1);
                 }
 
-            }
+                backPropagate(example.outputs);
+            });
 
-            layers.forEach(layer -> layer.nodes.forEach(node -> node.updateWeights()));
+            layers.parallelStream().forEach(Layer::updateNodeWeights);
 
 
             List<Double> outputs = examples
@@ -154,7 +136,7 @@ public class Network implements Runnable {
                     double last = verifyError.getLast();
                     // if slope is positive stop experiment
                     if (last - first > 0) {
-                        forever = false;
+                        shouldRun = false;
                     }
                     // pop off oldest error and add new error
                     verifyError.remove();
@@ -183,7 +165,7 @@ public class Network implements Runnable {
      *
      * @return A [List] containing the output for each example in the examples list.
      */
-    public Double forwardPropagate(Example example) throws IllegalStateException {
+    public Double forwardPropagate(Example example) {
         Layer input = layers.get(0);
 
         // For each node in the input layer, set the input to the node
@@ -193,22 +175,22 @@ public class Network implements Runnable {
         });
 
         // Calculate the output for each layer and pass it into the next layer
-        for (int j = 0; j < layers.size(); j++) {
+        for (int j = 0; j < layers.size() - 1; j++) {
             Layer currentLayer = layers.get(j);
             List<Double> outputs = currentLayer.calculateNodeOutputs();
             // If we are not at the output layer, we are going to set the
             // Next layers inputs to the current layers outputs.
-            if (j != layers.size() - 1) {
-                Layer nextLayer = layers.get(j + 1);
-                // Grab each node in the layer
-                nextLayer.nodes.parallelStream().forEach(node -> {
-                    // Set each node's inputs to the outputs
-                    node.inputs.clear();
-                    node.inputs.addAll(outputs);
-                });
-            } else return outputs.get(0); // Else we have hit the output and need to save it - Assume output has only one node.
+            Layer nextLayer = layers.get(j + 1);
+            // Grab each node in the layer
+            nextLayer.nodes.parallelStream().forEach(node -> {
+                // Set each node's inputs to the outputs
+                node.inputs.clear();
+                node.inputs.addAll(outputs);
+            });
         }
-        throw new IllegalStateException("Should have hit the output layer");
+
+        // We have hit the output and need to save it - Assume output has only one node.
+        return layers.get(layers.size() - 1).calculateNodeOutputs().get(0);
     }
 
     /**
@@ -236,7 +218,7 @@ public class Network implements Runnable {
                     System.err.println("delta is zero");
                 }
 
-                outputNode.newWeights.set(j,outputNode.newWeights.get(j) - learningRate * weightChange);
+                outputNode.newWeights.set(j, outputNode.newWeights.get(j) - learningRate * weightChange);
             }
         }
 
@@ -257,7 +239,6 @@ public class Network implements Runnable {
                 // Updating each weight in the node
                 for (int j = 0; j < currentNode.newWeights.size(); j++) {
                     double weightChange = currentNode.delta * previousLayer.nodes.get(j).output;
-
                     if (Double.isNaN(weightChange)){
                         System.err.println("weightChange is not a number");
                     }
@@ -270,7 +251,24 @@ public class Network implements Runnable {
 
     public List<Double> calculateError() {return null;}
 
-    private double calculateSigma() {return 0d;}
+    private double calculateSigma() {
+        double maxDistance = 0;
+        
+        for (int i = 0; i < examples.size(); i++) {
+            double sum = 0;
+            for (int j = i+1; j < examples.size(); j++) {
+                double inputVal = examples.get(i).inputs.get(i);
+                double exampleVal = examples.get(i).inputs.get(j);
+                sum += (inputVal - exampleVal) * (inputVal - exampleVal);
+            }
+
+            if (sum > maxDistance) {
+                maxDistance = sum;
+            }
+        }
+
+        return Math.sqrt(maxDistance);
+    }
 
     /**
      * Calculates the Rosenbrock function from the given input
@@ -313,6 +311,6 @@ public class Network implements Runnable {
     public double calculateAverageError(List<Double> outputs, List<Double> inputs) {
         return IntStream.range(0, outputs.size())
                 .mapToDouble(i -> Math.abs(inputs.get(i) - outputs.get(i)))
-                .sum() / (double) outputs.size();
+                .sum() / outputs.size();
     }
 }

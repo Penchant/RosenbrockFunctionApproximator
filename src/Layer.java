@@ -13,8 +13,7 @@ public class Layer {
 
     public Layer(int nodeCount, Type layerType) {
         this.layerType = layerType;
-        this.id = count;
-        count++;
+        this.id = count++;
 
         int inputCount = layerType == Type.INPUT ? nodeCount : network.layers.get(id - 1).nodes.size();
 
@@ -26,9 +25,7 @@ public class Layer {
     }
 
     public void updateNodeWeights() {
-        nodes.stream()
-                .parallel()
-                .forEach(i -> i.updateWeights());
+        nodes.parallelStream().forEach(Node::updateWeights);
     }
 
     public List<Double> calculateNodeOutputs() {
