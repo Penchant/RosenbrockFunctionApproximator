@@ -21,7 +21,7 @@ public class GUIController implements Initializable {
     @FXML private TextField inputCountTextField;
     @FXML private TextField nodesPerHiddenLayerTextField;
     @FXML private CheckBox isRadialBasisCheckbox;
-    @FXML public static Label isPausedField;
+    @FXML private Label isPausedField;
 
     @Override
     public void initialize(URL url, ResourceBundle rb) {
@@ -70,7 +70,7 @@ public class GUIController implements Initializable {
 
     @FXML
     private void selectFile(MouseEvent event) {
-        isPausedField.setText((Main.shouldPause = !Main.shouldPause) == true ? "Paused" : "Unpaused");
+        isPausedField.setText((Main.shouldPause = !Main.shouldPause) ? "Paused" : "Unpaused");
     }
 
     @FXML

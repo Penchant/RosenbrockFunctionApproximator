@@ -25,7 +25,8 @@ public class Network implements Runnable {
     private List<Example> testSet;
     private int hiddenLayers;
     private int dimension;
-    public static double learningRate = .000000000001d;
+
+    public static double learningRate = .00001d;
 
 
     public Network(final List<Integer> hiddenLayers, int dimension, boolean isRadialBasis, List<Example> examples) {
@@ -38,7 +39,8 @@ public class Network implements Runnable {
 
         layers.add(inputLayer = new Layer(dimension, Type.INPUT));
 
-        this.examples = examples;
+        this.fullSet = examples;
+        setupExamples();
 
         if (!isRadialBasis) {
             for (int i : hiddenLayers) {
@@ -70,7 +72,7 @@ public class Network implements Runnable {
         // Test set will be 10% of the total example size
         int testSize = fullSet.size() / 10;
         // Verify set will be 5% of the total example size
-        int verifySize = fullSet.size() / 5;
+        int verifySize = fullSet.size() / 20;
         // setup the test examples
         for (int i = 0; i < testSize; i++) {
             int index = ThreadLocalRandom.current().nextInt(0, fullSet.size() - 1);
@@ -85,6 +87,7 @@ public class Network implements Runnable {
         }
         // Once test and verify values are pulled out, set examples to remainder.
         examples = fullSet;
+        Node.sigma = calculateSigma();
     }
 
     @Override
@@ -106,7 +109,7 @@ public class Network implements Runnable {
                 while (Main.shouldPause) {
                     try {
                         Thread.sleep(100);
-                    } catch(Exception e) {
+                    } catch (Exception e) {
                         e.printStackTrace();
                     }
                 }
@@ -134,34 +137,38 @@ public class Network implements Runnable {
                         .collect(Collectors.toList());
 
                 System.out.println("Average error is " + calculateAverageError(output, outputs));
+            }
 
-                run_count++;
-                // If we have done 5 runs, do a verify check to see how error is coming along
-                if (run_count % 5 == 0) {
-                    double total = 0;
-                    // calculate error for each example in the verifySet
-                    for (int i = 0; i < verifySet.size(); i++){
-                        Example example = verifySet.get(i);
-                        Double networkOutput = forwardPropagate(example);
-                        Double exampleError = Math.abs(example.outputs.get(0) - networkOutput);
-                        total += exampleError;
+            run_count++;
+            // If we have done 5 runs, do a verify check to see how error is coming along
+            if (run_count % 5 == 0) {
+                double total = 0;
+                // calculate error for each example in the verifySet
+                for (int i = 0; i < verifySet.size(); i++){
+                    Example example = verifySet.get(i);
+                    Double networkOutput = forwardPropagate(example);
+                    Double exampleError = Math.abs(example.outputs.get(0) - networkOutput);
+                    total += exampleError;
+                }
+                // average error across verifySet
+                Double error = total / verifySet.size();
+
+                writer.print(error + ", ");
+                writer.flush();
+
+                System.out.println("Verify Error " + error);
+                verifyError.offer(error);
+
+                // if verifyError is full check slope
+                if (verifyError.size() == 20) {
+                    double first = verifyError.getFirst();
+                    double last = verifyError.getLast();
+                    // if slope is positive stop experiment
+                    if (last - first > 0) {
+                        shouldRun = false;
                     }
-                    // average error across verifySet
-                    Double error = total / verifySet.size();
-                    writer.print(error + ", ");
-                    writer.flush();
-                    // if verifyError is full check slope
-                    if (!verifyError.offer(error)) {
-                        double first = verifyError.getFirst();
-                        double last = verifyError.getLast();
-                        // if slope is positive stop experiment
-                        if (last - first > 0) {
-                            shouldRun = false;
-                        }
-                        // pop off oldest error and add new error
-                        verifyError.remove();
-                        verifyError.offer(error);
-                    }
+                    // pop off oldest error and add new error
+                    verifyError.remove();
                 }
             }
 
@@ -279,13 +286,18 @@ public class Network implements Runnable {
 
     private double calculateSigma() {
         double maxDistance = 0;
-        
+
         for (int i = 0; i < examples.size(); i++) {
             double sum = 0;
+            Example current = examples.get(i);
             for (int j = i+1; j < examples.size(); j++) {
-                double inputVal = examples.get(i).inputs.get(i);
-                double exampleVal = examples.get(i).inputs.get(j);
-                sum += (inputVal - exampleVal) * (inputVal - exampleVal);
+                Example otherExample = examples.get(j);
+                for (int k = 0; k < current.inputs.size(); k++) {
+
+                    double inputVal = current.inputs.get(k);
+                    double exampleVal = otherExample.inputs.get(k);
+                    sum += (inputVal - exampleVal) * (inputVal - exampleVal);
+                }
             }
 
             if (sum > maxDistance) {
