@@ -168,7 +168,6 @@ public class Network implements Runnable {
                 // Updating each weight in the node
                 for (int j = 0; j < currentNode.newWeights.size(); j++) {
                     double weightChange = currentNode.delta * previousLayer.nodes.get(j).output;
-
                     if (Double.isNaN(weightChange)){
                         System.err.println("weightChange is not a number");
                     }
@@ -181,7 +180,24 @@ public class Network implements Runnable {
 
     public List<Double> calculateError() {return null;}
 
-    private double calculateSigma() {return 0d;}
+    private double calculateSigma() {
+        double maxDistance = 0;
+        
+        for (int i = 0; i < examples.size(); i++) {
+            double sum = 0;
+            for (int j = i+1; j < examples.size(); j++) {
+                double inputVal = examples.get(i).inputs.get(i);
+                double exampleVal = examples.get(i).inputs.get(j);
+                sum += (inputVal - exampleVal) * (inputVal - exampleVal);
+            }
+
+            if (sum > maxDistance) {
+                maxDistance = sum;
+            }
+        }
+
+        return Math.sqrt(maxDistance);
+    }
 
     /**
      * Calculates the Rosenbrock function from the given input
