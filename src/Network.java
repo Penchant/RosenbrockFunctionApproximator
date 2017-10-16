@@ -31,7 +31,8 @@ public class Network implements Runnable {
         layers.add(inputLayer = new Layer(dimension, Type.INPUT));
 
         learningRate = learningRate / examples.size();
-        this.examples = examples;
+        this.fullSet = examples;
+        setupExamples();
 
         Node.sigma = calculateSigma();
 
@@ -65,7 +66,7 @@ public class Network implements Runnable {
         // Test set will be 10% of the total example size
         int testSize = fullSet.size() / 10;
         // Verify set will be 5% of the total example size
-        int verifySize = fullSet.size() / 5;
+        int verifySize = fullSet.size() / 20;
         // setup the test examples
         for (int i = 0; i < testSize; i++) {
             int index = ThreadLocalRandom.current().nextInt(0, fullSet.size() - 1);
@@ -134,8 +135,11 @@ public class Network implements Runnable {
                 }
                 // average error across verifySet
                 Double error = total / verifySet.size();
+                System.out.println("Verify Error " + error);
+                verifyError.offer(error);
+
                 // if verifyError is full check slope
-                if (!verifyError.offer(error)) {
+                if (verifyError.size() == 20) {
                     double first = verifyError.getFirst();
                     double last = verifyError.getLast();
                     // if slope is positive stop experiment
@@ -144,8 +148,7 @@ public class Network implements Runnable {
                     }
                     // pop off oldest error and add new error
                     verifyError.remove();
-                    verifyError.offer(error);
-                }       
+                }
             }
         }
         List<Double> errors = new ArrayList<Double>();
