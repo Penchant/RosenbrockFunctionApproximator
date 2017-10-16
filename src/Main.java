@@ -213,9 +213,9 @@ public class Main extends Application {
             new CommandLineParameter("-h",     "Displays the help text",                                       f -> printHelp(),                       null, CommandLineParameter.Type.Void),     // Help
             new CommandLineParameter("-rb",    "Sets the network to use radial basis",                         f -> isRadialBasis = true,             false, CommandLineParameter.Type.Void),     // Radial Basis
             new CommandLineParameter("-ds",    "The start point for the data (example) generation",            i -> dataGenStart = (double) i,           0d, CommandLineParameter.Type.Double),   // Data Generation Start
-            new CommandLineParameter("-de",    "The end point for the data (example) generation",              i -> dataGenEnd = (double) i,            20d, CommandLineParameter.Type.Double),   // Data Generation End
+            new CommandLineParameter("-de",    "The end point for the data (example) generation",              i -> dataGenEnd = (double) i,             2d, CommandLineParameter.Type.Double),   // Data Generation End
             new CommandLineParameter("-di",    "The incrementation of the data point",                         i -> dataGenIncrement = (double) i,      .1d, CommandLineParameter.Type.Double),   // Data Generation Incrementation
-            new CommandLineParameter("-hl",    "The amount of hidden layers, and the amount of nodes in each", s -> parseHiddenLayers((String) s),"200,100", CommandLineParameter.Type.String),   // Hidden Layers
+            new CommandLineParameter("-hl",    "The amount of hidden layers, and the amount of nodes in each", s -> parseHiddenLayers((String) s),  "40,40", CommandLineParameter.Type.String),   // Hidden Layers
             new CommandLineParameter("-d",     "The number of dimensions the function will use",               i -> dimension = (int) i,                  2, CommandLineParameter.Type.Integer),  // Dimensions
             new CommandLineParameter("-s",     "Save the weights to a given output file",                      s -> savePath = (String) s,               "", CommandLineParameter.Type.String),   // Save
 
