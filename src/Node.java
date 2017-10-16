@@ -24,10 +24,12 @@ public class Node {
         this.nodeType = nodeType;
 
         for (int i = 0; i < inputCount ; i++) {
-            if(nodeType != Type.INPUT) {
-                weights.add(Math.random());
-            } else {
+            if (nodeType == Type.INPUT) {
                 weights.add(1d);
+            } else if (nodeType == Type.OUTPUT){
+                weights.add(Math.random() * 10000);
+            } else {
+                weights.add(Math.random());
             }
         }
 
