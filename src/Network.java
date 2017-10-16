@@ -17,12 +17,16 @@ public class Network implements Runnable {
     private List<Example> testSet;
     private int hiddenLayers;
     private int dimension;
-    private double learningRate = 0.001d;
+    private Double learningRate = .000000000001d;
+
 
     public Network(final List<Integer> hiddenLayers, int dimension, boolean isRadialBasis, List<Example> examples) {
         this.hiddenLayers = hiddenLayers.size();
         this.dimension = dimension;
+        this.learningRate = learningRate / examples.size();
+
         Layer.network = this;
+
 
         layers.add(inputLayer = new Layer(dimension, Type.INPUT));
 
@@ -96,8 +100,6 @@ public class Network implements Runnable {
             examples.forEach(example -> {
                 Double networkOutput = forwardPropagate(example);
                 output.add(networkOutput);
-
-                System.out.println("Network predicted " + networkOutput + " for inputs of " + example.inputs.toString() + " and a correct output of " + example.outputs.get(0));
 
                 if (Double.isNaN(networkOutput)) {
                     System.err.println("NaN");
@@ -206,7 +208,7 @@ public class Network implements Runnable {
         // Updating weights on output layer
         for (int i = 0; i < outputNodes.size(); i++) {
             Node outputNode = outputNodes.get(i);
-            outputNode.delta = -1 * (target.get(i) - outputNode.output) * outputNode.output * (1 - outputNode.output);
+            outputNode.delta = -1 * (target.get(i) - outputNode.output);
 
             for (int j = 0; j < outputNode.newWeights.size(); j++) {
                 double weightChange = outputNode.delta * previousLayer.nodes.get(j).output;
