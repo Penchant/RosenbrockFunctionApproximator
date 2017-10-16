@@ -1,4 +1,5 @@
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.function.Function;
 import java.util.function.ToDoubleFunction;
@@ -23,22 +24,17 @@ public class Node {
     public Node(Type nodeType, int inputCount) {
         this.nodeType = nodeType;
 
-        double weightFactor = nodeType == Type.OUTPUT ? 100 : 1;
         for (int i = 0; i < inputCount ; i++) {
             if(nodeType != Type.INPUT) {
-                weights.add(Math.random() * weightFactor);
-            }
-            else{
+                weights.add(Math.random());
+            } else {
                 weights.add(1d);
             }
         }
 
-        for (int j = 0; j < weights.size(); j++) {
-            newWeights.add(weights.get(j));
-        }
-
         setActivationFunction();
 
+        newWeights.addAll(weights);
     }
 
     private void setActivationFunction(){
@@ -66,9 +62,7 @@ public class Node {
     }
 
     public void updateWeights() {
-        for (int j = 0; j < newWeights.size(); j++) {
-            weights.set(j, newWeights.get(j));
-        }
+        weights = new ArrayList<Double>(newWeights);
     }
 
     /**
