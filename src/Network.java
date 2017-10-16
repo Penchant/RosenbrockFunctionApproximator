@@ -13,13 +13,11 @@ public class Network implements Runnable {
     private List<Example> examples;
     private int hiddenLayers;
     private int dimension;
-    private int nodesPerHiddenLayer;
     private double learningRate = 0.001d;
 
-    public Network(int hiddenLayers, int nodesPerHiddenLayer, int dimension, boolean isRadialBasis, List<Example> examples) {
-        this.hiddenLayers = hiddenLayers;
+    public Network(final List<Integer> hiddenLayers, int dimension, boolean isRadialBasis, List<Example> examples) {
+        this.hiddenLayers = hiddenLayers.size();
         this.dimension = dimension;
-        this.nodesPerHiddenLayer = nodesPerHiddenLayer;
 
         Layer.network = this;
 
@@ -28,9 +26,10 @@ public class Network implements Runnable {
         this.examples = examples;
 
         if (!isRadialBasis) {
-            layers.addAll(Stream.generate(() -> new Layer(nodesPerHiddenLayer, Type.HIDDEN)).limit(hiddenLayers).collect(Collectors.toList()));
+            for (int i : hiddenLayers) {
+                layers.add(new Layer(i, Type.HIDDEN));
+            }
         } else {
-            this.nodesPerHiddenLayer = examples.size();
             this.hiddenLayers = 1;
 
             Layer rbfHidden = new Layer(examples.size(), Type.RBFHIDDEN);
@@ -147,7 +146,7 @@ public class Network implements Runnable {
                     System.err.println("delta is zero");
                 }
 
-                outputNode.newWeights.set(j,outputNode.newWeights.get(j) - learningRate * weightChange);
+                outputNode.newWeights.set(j, outputNode.newWeights.get(j) - learningRate * weightChange);
             }
         }
 
