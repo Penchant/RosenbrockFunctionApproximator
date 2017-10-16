@@ -1,4 +1,12 @@
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.text.SimpleDateFormat;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
@@ -17,7 +25,8 @@ public class Network implements Runnable {
     private List<Example> testSet;
     private int hiddenLayers;
     private int dimension;
-    private Double learningRate = .000001d;
+
+    public static double learningRate = .000001d;
 
 
     public Network(final List<Integer> hiddenLayers, int dimension, boolean isRadialBasis, List<Example> examples) {
@@ -83,43 +92,52 @@ public class Network implements Runnable {
 
     @Override
     public void run() {
-        int run_count = 0;
-        LinkedList<Double> verifyError = new LinkedList<Double>();
-        boolean shouldRun = true;
-        while (shouldRun) {
-            List<Double> output = new ArrayList<Double>();
+        try {
+            File file = new File(System.currentTimeMillis() + ".csv");
 
-            while (Main.shouldPause) {
-                try {
-                    Thread.sleep(100);
-                } catch(Exception e) {
-                    e.printStackTrace();
-                }
+            if (!file.exists()) {
+                file.createNewFile();
             }
+            PrintWriter writer = new PrintWriter(file);
 
-            // For each example we set the input layer's node's inputs to the example value,
-            // then calculate the output for that example.
-            examples.forEach(example -> {
-                Double networkOutput = forwardPropagate(example);
-                output.add(networkOutput);
+            int run_count = 0;
+            LinkedList<Double> verifyError = new LinkedList<Double>();
+            boolean shouldRun = true;
+            while (shouldRun) {
+                List<Double> output = new ArrayList<Double>();
 
-                if (Double.isNaN(networkOutput)) {
-                    System.err.println("NaN");
-                    System.exit(1);
+                while (Main.shouldPause) {
+                    try {
+                        Thread.sleep(100);
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
                 }
 
-                backPropagate(example.outputs);
-            });
+                // For each example we set the input layer's node's inputs to the example value,
+                // then calculate the output for that example.
+                examples.forEach(example -> {
+                    Double networkOutput = forwardPropagate(example);
+                    output.add(networkOutput);
 
-            layers.parallelStream().forEach(Layer::updateNodeWeights);
+                    if (Double.isNaN(networkOutput)) {
+                        System.err.println("NaN");
+                        System.exit(1);
+                    }
+
+                    backPropagate(example.outputs);
+                });
+
+                layers.parallelStream().forEach(Layer::updateNodeWeights);
 
 
-            List<Double> outputs = examples
-                    .stream()
-                    .map(example -> example.outputs.get(0))
-                    .collect(Collectors.toList());
+                List<Double> outputs = examples
+                        .stream()
+                        .map(example -> example.outputs.get(0))
+                        .collect(Collectors.toList());
 
-            System.out.println("Average error is " + calculateAverageError(output, outputs));
+                System.out.println("Average error is " + calculateAverageError(output, outputs));
+            }
 
             run_count++;
             // If we have done 5 runs, do a verify check to see how error is coming along
@@ -134,6 +152,10 @@ public class Network implements Runnable {
                 }
                 // average error across verifySet
                 Double error = total / verifySet.size();
+
+                writer.print(error + ", ");
+                writer.flush();
+
                 System.out.println("Verify Error " + error);
                 verifyError.offer(error);
 
@@ -149,7 +171,7 @@ public class Network implements Runnable {
                     verifyError.remove();
                 }
             }
-        }
+
         System.out.println("Run Ended");
         List<Double> errors = new ArrayList<Double>();
         List<Boolean> correctApproximations = new ArrayList<Boolean>();
@@ -157,12 +179,17 @@ public class Network implements Runnable {
             Example example = testSet.get(i);
             Double networkOutput = forwardPropagate(example);
             Double exampleError = Math.abs(example.outputs.get(0) - networkOutput);
-            errors.add (exampleError);
+            errors.add(exampleError);
             if (exampleError <= 0.001) {
                 correctApproximations.add(true);
             } else {
                 correctApproximations.add(false);
             }
+        }
+
+        writer.close();
+        } catch (IOException e) {
+            e.printStackTrace();
         }
     }
 

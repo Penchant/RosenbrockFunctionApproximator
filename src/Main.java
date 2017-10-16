@@ -32,6 +32,7 @@ public class Main extends Application {
     private static Thread networkRun;
     private static javax.swing.Timer timer;
     private static double progress = 0;
+    private static int direction = 1;
 
     public static void start(double dataGenStart, double dataGenEnd, double dataGenIncrement, List<Integer> hiddenLayers, int inputCount, boolean isRadialBasis) {
         System.out.println("Starting");
@@ -53,8 +54,16 @@ public class Main extends Application {
         // "Test" the progress bar
         if (useGUI) {
             timer = new javax.swing.Timer(1, ae -> {
-                if ((int) (Math.random() * 4) != 0 && progress <= 0.97d)
-                    controller.progressBar.setProgress(progress += 0.0001d);
+                if ((int) (Math.random() * 4) != 0) {
+                    if(progress >= 1d) {
+                        progress = 1;
+                        direction = -1;
+                    } else if(progress <= 0) {
+                        progress = 0;
+                        direction = 1;
+                    }
+                    controller.progressBar.setProgress(progress += direction * 0.0001d);
+                }
                 if (shouldStop)
                     timer.stop();
             });

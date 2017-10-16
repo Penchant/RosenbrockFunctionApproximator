@@ -22,5 +22,5 @@ For help with the command line parameters, use `java -jar Rosenbrock.jar -h`
 
 Example:
 ```
-java -jar Rosenbrock.jar -nogui -rb -ds 0 -de 20 -di 1 -hl 200,300 -d 3 -s path/to/file
+java -jar Rosenbrock.jar -nogui -rb -ds 0 -de 20 -di 1 -hl 200,300 -d 3
 ```
