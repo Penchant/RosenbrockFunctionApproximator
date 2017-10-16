@@ -63,8 +63,7 @@ public class Network implements Runnable {
 
             // For each example we set the input layer's node's inputs to the example value,
             // then calculate the output for that example.
-            for (int i = 0; i < examples.size(); i++) {
-                Example example = examples.get(i);
+            examples.forEach(example -> {
                 Double networkOutput = forwardPropagate(example);
                 output.add(networkOutput);
 
@@ -75,8 +74,8 @@ public class Network implements Runnable {
                     System.exit(1);
                 }
 
-                backPropagate(examples.get(i).outputs);
-            }
+                backPropagate(example.outputs);
+            });
 
             layers.parallelStream().forEach(Layer::updateNodeWeights);
 
