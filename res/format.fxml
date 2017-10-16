@@ -17,8 +17,8 @@
             <CheckBox fx:id="isRadialBasisCheckbox" layoutX="352.0" layoutY="246.0" mnemonicParsing="false" text="Radial Basis" />
             <AnchorPane layoutY="228.0" prefHeight="53.0" prefWidth="200.0">
                <children>
-                  <Button fx:id="selectFileButton" layoutX="14.0" layoutY="16.0" mnemonicParsing="false" onMouseClicked="#selectFile" text="Select File" />
-                  <Label alignment="TOP_LEFT" layoutX="93.0" layoutY="19.0" text="No File Selected" />
+                  <Button fx:id="selectFileButton" layoutX="14.0" layoutY="16.0" mnemonicParsing="false" onMouseClicked="#selectFile" prefHeight="25.0" prefWidth="73.0" text="Pause" />
+                  <Label fx:id="isPausedField" alignment="TOP_LEFT" layoutX="93.0" layoutY="19.0" text="Unpaused" />
                </children>
             </AnchorPane>
             <Button fx:id="startButton" layoutX="211.0" layoutY="243.0" mnemonicParsing="false" onMouseClicked="#start" prefHeight="22.0" prefWidth="81.0" text="Start" />
@@ -38,9 +38,9 @@
                         </VBox>
                         <VBox prefHeight="113.0" prefWidth="185.0" spacing="17.0">
                            <children>
-                              <Label text="Hidden Layers" />
-                              <Label text="Input Count" />
-                              <Label text="Nodes Per Hidden Layer" />
+                              <Label text="# Of Nodes &amp; Hidden Layers" />
+                              <Label text="Dimension" />
+                              <Label text="Learning Rate" />
                            </children>
                            <opaqueInsets>
                               <Insets />
