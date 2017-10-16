@@ -19,9 +19,8 @@ public class Main extends Application {
     public static double dataGenStart;
     public static double dataGenEnd;
     public static double dataGenIncrement;
-    public static int hiddenLayers;
+    public static List<Integer> hiddenLayers;
     public static int dimension;
-    public static int nodesPerHiddenLayer;
     private static Stage primaryStage;
     private static GUIController controller;
     private static Network network;
@@ -34,11 +33,11 @@ public class Main extends Application {
     private static javax.swing.Timer timer;
     private static double progress = 0;
 
-    public static void start(double dataGenStart, double dataGenEnd, double dataGenIncrement, int hiddenLayers, int inputCount, int nodesPerHiddenLater, boolean isRadialBasis) {
+    public static void start(double dataGenStart, double dataGenEnd, double dataGenIncrement, List<Integer> hiddenLayers, int inputCount, boolean isRadialBasis) {
         System.out.println("Starting");
 
         //Create network with examples from data generation
-        network = new Network(hiddenLayers, nodesPerHiddenLater, inputCount, isRadialBasis, generateData(dataGenStart, dataGenEnd, dataGenIncrement, inputCount, Network::rosenbrock));
+        network = new Network(hiddenLayers, inputCount, isRadialBasis, generateData(dataGenStart, dataGenEnd, dataGenIncrement, inputCount, Network::rosenbrock));
 
         System.out.println("Created network");
 
@@ -86,7 +85,7 @@ public class Main extends Application {
         }
 
         // Initialize for lists to have space for inputs
-        examples.stream().forEach(example -> {
+        examples.parallelStream().forEach(example -> {
             for (int i = 0; i < dimension; i++) {
                 example.inputs.add(0d);
             }
@@ -108,7 +107,7 @@ public class Main extends Application {
             }
 
             // Calculate output and add to end of list
-            double[] inputs = calculatedPoint.stream().mapToDouble(d -> d).toArray();
+            double[] inputs = calculatedPoint.stream().mapToDouble(Double::doubleValue).toArray();
             Double functionOutput = functionToApproximate.apply(inputs);
 
 
@@ -198,20 +197,29 @@ public class Main extends Application {
 
         Stream.of(commands).forEach(System.out::println);
         System.exit(0);
-        return false;
+        return true;
+    }
+
+    private static boolean parseHiddenLayers(String arg) {
+        hiddenLayers = new ArrayList<Integer>();
+        for (String s : arg.split(",")) {
+            hiddenLayers.add(Integer.parseInt(s.trim()));
+        }
+        return true;
     }
 
     private static CommandLineParameter[] commands = {
-            new CommandLineParameter("-nogui", "Runs the application without a GUI",                f -> useGUI = false,                true, CommandLineParameter.Type.Void),     // No GUI
-            new CommandLineParameter("-h",     "Displays the help text",                            f -> printHelp(),                   null, CommandLineParameter.Type.Void),     // Help
-            new CommandLineParameter("-rb",    "Sets the network to use radial basis",              f -> isRadialBasis = true,         false, CommandLineParameter.Type.Void),     // Radial Basis
-            new CommandLineParameter("-ds",    "The start point for the data (example) generation", i -> dataGenStart = (double) i,       0d, CommandLineParameter.Type.Double),   // Data Generation Start
-            new CommandLineParameter("-de",    "The end point for the data (example) generation",   i -> dataGenEnd = (double) i,        2d, CommandLineParameter.Type.Double),   // Data Generation End
-            new CommandLineParameter("-di",    "The incrementation of the data point",              i -> dataGenIncrement = (double) i, 0.1d, CommandLineParameter.Type.Double),   // Data Generation Incrementation
-            new CommandLineParameter("-hl",    "The amount of hidden layers",                       i -> hiddenLayers = (int) i,           1, CommandLineParameter.Type.Integer),  // Hidden Layers
-            new CommandLineParameter("-d",     "The number of dimensions the function will use",    i -> dimension = (int) i,              2, CommandLineParameter.Type.Integer),  // Dimensions
-            new CommandLineParameter("-n",     "The number of nodes per hidden layer",              i -> nodesPerHiddenLayer = (int) i,    30, CommandLineParameter.Type.Integer),  // Nodes Per Hidden Layer
-            new CommandLineParameter("-s",     "Save the weights to a given output file",           s -> savePath = (String) s,           "", CommandLineParameter.Type.String),   // Save
+
+            new CommandLineParameter("-nogui", "Runs the application without a GUI",                           f -> useGUI = false,                    true, CommandLineParameter.Type.Void),     // No GUI
+            new CommandLineParameter("-h",     "Displays the help text",                                       f -> printHelp(),                       null, CommandLineParameter.Type.Void),     // Help
+            new CommandLineParameter("-rb",    "Sets the network to use radial basis",                         f -> isRadialBasis = true,             false, CommandLineParameter.Type.Void),     // Radial Basis
+            new CommandLineParameter("-ds",    "The start point for the data (example) generation",            i -> dataGenStart = (double) i,           0d, CommandLineParameter.Type.Double),   // Data Generation Start
+            new CommandLineParameter("-de",    "The end point for the data (example) generation",              i -> dataGenEnd = (double) i,             2d, CommandLineParameter.Type.Double),   // Data Generation End
+            new CommandLineParameter("-di",    "The incrementation of the data point",                         i -> dataGenIncrement = (double) i,      .1d, CommandLineParameter.Type.Double),   // Data Generation Incrementation
+            new CommandLineParameter("-hl",    "The amount of hidden layers, and the amount of nodes in each", s -> parseHiddenLayers((String) s),  "40,40", CommandLineParameter.Type.String),   // Hidden Layers
+            new CommandLineParameter("-d",     "The number of dimensions the function will use",               i -> dimension = (int) i,                  2, CommandLineParameter.Type.Integer),  // Dimensions
+            new CommandLineParameter("-s",     "Save the weights to a given output file",                      s -> savePath = (String) s,               "", CommandLineParameter.Type.String),   // Save
+
     };
 
     public static void main(String[] args) {
@@ -243,7 +251,7 @@ public class Main extends Application {
         if (useGUI) {
             launch(args);
         } else {
-            start(dataGenStart, dataGenEnd, dataGenIncrement, hiddenLayers, dimension, nodesPerHiddenLayer, isRadialBasis);
+            start(dataGenStart, dataGenEnd, dataGenIncrement, hiddenLayers, dimension, isRadialBasis);
             if (!savePath.isEmpty()) save(savePath);
             System.exit(0);
         }
@@ -276,7 +284,7 @@ public class Main extends Application {
     private static class CommandLineParameter {
 
         public static int flagLength = 6;
-        public static int descriptionLength = 49;
+        public static int descriptionLength = 60;
         public static int defaultLength = 7;
         public static int parameterLength = 9;
         public Type paramType;
@@ -292,8 +300,6 @@ public class Main extends Application {
             this.defaultValue = defaultValue;
             this.paramType = paramType;
         }
-
-        ;
 
         private String toTable(String startFormat, String endFormat) {
             String formatMiddle = "";
