@@ -3,7 +3,6 @@ import java.util.List;
 import java.util.function.ToDoubleFunction;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
-import java.util.stream.Stream;
 
 public class Network implements Runnable {
 
@@ -21,10 +20,12 @@ public class Network implements Runnable {
 
         learningRate = -1 * learningRate / examples.size();
 
+
         Layer.network = this;
 
         layers.add(inputLayer = new Layer(dimension, Type.INPUT));
 
+        learningRate = learningRate / examples.size();
         this.examples = examples;
 
         if (!isRadialBasis) {
@@ -69,6 +70,7 @@ public class Network implements Runnable {
                 output.add(networkOutput);
 
                     //System.out.println("Network predicted " + networkOutput + " for inputs of " + example.inputs.toString() + " and a correct output of " + example.outputs.get(0));
+
 
                 if (Double.isNaN(networkOutput)) {
                     System.err.println("NaN");
@@ -136,7 +138,7 @@ public class Network implements Runnable {
         // Updating weights on output layer
         for (int i = 0; i < outputNodes.size(); i++) {
             Node outputNode = outputNodes.get(i);
-            outputNode.delta = -1 * (target.get(i) - outputNode.output) * outputNode.output * (1 - outputNode.output);
+            outputNode.delta = -1 * (target.get(i) - outputNode.output) * outputNode.output;
 
             for (int j = 0; j < outputNode.newWeights.size(); j++) {
                 double weightChange = outputNode.delta * previousLayer.nodes.get(j).output;
