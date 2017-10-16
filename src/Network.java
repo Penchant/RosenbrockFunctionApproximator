@@ -3,6 +3,7 @@ import java.util.List;
 import java.util.function.ToDoubleFunction;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
+import java.util.stream.Stream;
 
 public class Network implements Runnable {
 
@@ -13,37 +14,30 @@ public class Network implements Runnable {
     private int hiddenLayers;
     private int dimension;
     private int nodesPerHiddenLayer;
-    private boolean isRadialBasis;
-    private Double learningRate = 0.001d;
+    private double learningRate = 0.001d;
 
     public Network(int hiddenLayers, int nodesPerHiddenLayer, int dimension, boolean isRadialBasis, List<Example> examples) {
         this.hiddenLayers = hiddenLayers;
         this.dimension = dimension;
         this.nodesPerHiddenLayer = nodesPerHiddenLayer;
-        this.isRadialBasis = isRadialBasis;
-
-        this.examples = examples;
-        if (isRadialBasis) {
-            nodesPerHiddenLayer = examples.size();
-            hiddenLayers = 1;
-        }
 
         Layer.network = this;
-        layers.add(new Layer(dimension, Type.INPUT));
-        inputLayer = layers.get(0);
+
+        layers.add(inputLayer = new Layer(dimension, Type.INPUT));
+
+        this.examples = examples;
 
         if (!isRadialBasis) {
-            for (int i = 0; i < hiddenLayers; i++) {
-                layers.add(new Layer(nodesPerHiddenLayer, Type.HIDDEN));
-            }
+            layers.addAll(Stream.generate(() -> new Layer(nodesPerHiddenLayer, Type.HIDDEN)).limit(hiddenLayers).collect(Collectors.toList()));
         } else {
-            Layer rbfHidden = new Layer (examples.size(), Type.RBFHIDDEN);
+            this.nodesPerHiddenLayer = examples.size();
+            this.hiddenLayers = 1;
+
+            Layer rbfHidden = new Layer(examples.size(), Type.RBFHIDDEN);
 
             examples.forEach(example ->
                 rbfHidden.nodes.forEach(current -> {
-                    for (int k = 0; k < example.inputs.size(); k++) {
-                        current.weights.set(k, example.inputs.get(k));
-                    }
+                    current.weights = new ArrayList<Double>(example.inputs);
                     current.mu = example.outputs.get(0);
                 })
             );
@@ -69,8 +63,7 @@ public class Network implements Runnable {
 
             // For each example we set the input layer's node's inputs to the example value,
             // then calculate the output for that example.
-            for (int i = 0; i < examples.size(); i++) {
-                Example example = examples.get(i);
+            examples.forEach(example -> {
                 Double networkOutput = forwardPropagate(example);
                 output.add(networkOutput);
 
@@ -81,10 +74,10 @@ public class Network implements Runnable {
                     System.exit(1);
                 }
 
-                backPropagate(examples.get(i).outputs);
-            }
+                backPropagate(example.outputs);
+            });
 
-            layers.forEach(layer -> layer.nodes.forEach(node -> node.updateWeights()));
+            layers.parallelStream().forEach(Layer::updateNodeWeights);
 
             List<Double> outputs = examples
                     .stream()

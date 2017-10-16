@@ -86,7 +86,7 @@ public class Main extends Application {
         }
 
         // Initialize for lists to have space for inputs
-        examples.stream().forEach(example -> {
+        examples.parallelStream().forEach(example -> {
             for (int i = 0; i < dimension; i++) {
                 example.inputs.add(0d);
             }
@@ -108,7 +108,7 @@ public class Main extends Application {
             }
 
             // Calculate output and add to end of list
-            double[] inputs = calculatedPoint.stream().mapToDouble(d -> d).toArray();
+            double[] inputs = calculatedPoint.stream().mapToDouble(Double::doubleValue).toArray();
             Double functionOutput = functionToApproximate.apply(inputs);
 
 
