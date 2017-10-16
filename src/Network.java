@@ -26,7 +26,7 @@ public class Network implements Runnable {
     private int hiddenLayers;
     private int dimension;
 
-    public static double learningRate = .00001d;
+    public static double learningRate = .000001d;
 
 
     public Network(final List<Integer> hiddenLayers, int dimension, boolean isRadialBasis, List<Example> examples) {
@@ -141,7 +141,7 @@ public class Network implements Runnable {
 
             run_count++;
             // If we have done 5 runs, do a verify check to see how error is coming along
-            if (run_count % 5 == 0) {
+            if (run_count % 200 == 0) {
                 double total = 0;
                 // calculate error for each example in the verifySet
                 for (int i = 0; i < verifySet.size(); i++){
@@ -172,21 +172,22 @@ public class Network implements Runnable {
                 }
             }
 
-            List<Double> errors = new ArrayList<Double>();
-            List<Boolean> correctApproximations = new ArrayList<Boolean>();
-            for (int i = 0; i < testSet.size (); i++) {
-                Example example = testSet.get(i);
-                Double networkOutput = forwardPropagate(example);
-                Double exampleError = Math.abs(example.outputs.get(0) - networkOutput);
-                errors.add (exampleError);
-                if (exampleError <= 0.001) {
-                    correctApproximations.add(true);
-                } else {
-                    correctApproximations.add(false);
-                }
+        System.out.println("Run Ended");
+        List<Double> errors = new ArrayList<Double>();
+        List<Boolean> correctApproximations = new ArrayList<Boolean>();
+        for (int i = 0; i < testSet.size (); i++) {
+            Example example = testSet.get(i);
+            Double networkOutput = forwardPropagate(example);
+            Double exampleError = Math.abs(example.outputs.get(0) - networkOutput);
+            errors.add(exampleError);
+            if (exampleError <= 0.001) {
+                correctApproximations.add(true);
+            } else {
+                correctApproximations.add(false);
             }
+        }
 
-            writer.close();
+        writer.close();
         } catch (IOException e) {
             e.printStackTrace();
         }
