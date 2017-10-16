@@ -43,8 +43,13 @@ public class Main extends Application {
         System.out.println("Created network");
 
         System.out.println("Starting to run network");
-        networkRun = new Thread(network);
-        networkRun.start();
+
+        if (useGUI) {
+            networkRun = new Thread(network);
+            networkRun.start();
+        } else {
+            network.run();
+        }
 
         // "Test" the progress bar
         if (useGUI) {
