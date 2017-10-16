@@ -30,7 +30,11 @@ public class Network implements Runnable {
 
 
     public Network(final List<Integer> hiddenLayers, int dimension, boolean isRadialBasis, List<Example> examples) {
-        this.hiddenLayers = hiddenLayers.size();
+        if (hiddenLayers.get(0)== 0){
+            this.hiddenLayers = 0;
+        } else {
+            this.hiddenLayers = hiddenLayers.size();
+        }
         this.dimension = dimension;
         this.learningRate = learningRate / examples.size();
 
@@ -43,8 +47,10 @@ public class Network implements Runnable {
         setupExamples();
 
         if (!isRadialBasis) {
-            for (int i : hiddenLayers) {
-                layers.add(new Layer(i, Type.HIDDEN));
+            if (hiddenLayers.get(0) != 0){
+                for (int i : hiddenLayers) {
+                    layers.add(new Layer(i, Type.HIDDEN));
+                }
             }
         } else {
             this.hiddenLayers = 1;
