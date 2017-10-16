@@ -26,16 +26,12 @@ public class Node {
         for (int i = 0; i < inputCount ; i++) {
             if(nodeType != Type.INPUT) {
                 weights.add(Math.random() * weightFactor);
-            }
-            else{
+            } else {
                 weights.add(1d);
             }
         }
 
-        for (int j = 0; j < weights.size(); j++) {
-            newWeights.add(weights.get(j));
-        }
-
+        weights.forEach(weight -> newWeights.add(weight));
     }
 
     public double calculateOutput() {
