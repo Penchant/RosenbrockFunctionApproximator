@@ -30,7 +30,11 @@ public class Network implements Runnable {
 
 
     public Network(final List<Integer> hiddenLayers, int dimension, boolean isRadialBasis, List<Example> examples) {
-        this.hiddenLayers = hiddenLayers.size();
+        if (hiddenLayers.get(0)== 0){
+            this.hiddenLayers = 0;
+        } else {
+            this.hiddenLayers = hiddenLayers.size();
+        }
         this.dimension = dimension;
         this.learningRate = learningRate / examples.size();
 
@@ -43,8 +47,10 @@ public class Network implements Runnable {
         setupExamples();
 
         if (!isRadialBasis) {
-            for (int i : hiddenLayers) {
-                layers.add(new Layer(i, Type.HIDDEN));
+            if (hiddenLayers.get(0) != 0){
+                for (int i : hiddenLayers) {
+                    layers.add(new Layer(i, Type.HIDDEN));
+                }
             }
         } else {
             this.hiddenLayers = 1;
@@ -137,38 +143,38 @@ public class Network implements Runnable {
                         .collect(Collectors.toList());
 
                 System.out.println("Average error is " + calculateAverageError(output, outputs));
-            }
 
-            run_count++;
-            // If we have done 5 runs, do a verify check to see how error is coming along
-            if (run_count % 200 == 0) {
-                double total = 0;
-                // calculate error for each example in the verifySet
-                for (int i = 0; i < verifySet.size(); i++){
-                    Example example = verifySet.get(i);
-                    Double networkOutput = forwardPropagate(example);
-                    Double exampleError = Math.abs(example.outputs.get(0) - networkOutput);
-                    total += exampleError;
-                }
-                // average error across verifySet
-                Double error = total / verifySet.size();
-
-                writer.print(error + ", ");
-                writer.flush();
-
-                System.out.println("Verify Error " + error);
-                verifyError.offer(error);
-
-                // if verifyError is full check slope
-                if (verifyError.size() == 20) {
-                    double first = verifyError.getFirst();
-                    double last = verifyError.getLast();
-                    // if slope is positive stop experiment
-                    if (last - first > 0) {
-                        shouldRun = false;
+                run_count++;
+                // If we have done 5 runs, do a verify check to see how error is coming along
+                if (run_count % 100 == 0) {
+                    double total = 0;
+                    // calculate error for each example in the verifySet
+                    for (int i = 0; i < verifySet.size(); i++){
+                        Example example = verifySet.get(i);
+                        Double networkOutput = forwardPropagate(example);
+                        Double exampleError = Math.abs(example.outputs.get(0) - networkOutput);
+                        total += exampleError;
                     }
-                    // pop off oldest error and add new error
-                    verifyError.remove();
+                    // average error across verifySet
+                    Double error = total / verifySet.size();
+
+                    writer.print(error + ", ");
+                    writer.flush();
+
+                    System.out.println("Verify Error " + error);
+                    verifyError.offer(error);
+
+                    // if verifyError is full check slope
+                    if (verifyError.size() == 20) {
+                        double first = verifyError.getFirst();
+                        double last = verifyError.getLast();
+                        // if slope is positive stop experiment
+                        if (last - first > 0) {
+                            shouldRun = false;
+                        }
+                        // pop off oldest error and add new error
+                        verifyError.remove();
+                    }
                 }
             }
 
