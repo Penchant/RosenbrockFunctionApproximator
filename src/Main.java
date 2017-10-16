@@ -86,7 +86,7 @@ public class Main extends Application {
         }
 
         // Initialize for lists to have space for inputs
-        examples.stream().forEach(example -> {
+        examples.parallelStream().forEach(example -> {
             for (int i = 0; i < dimension; i++) {
                 example.inputs.add(0d);
             }
