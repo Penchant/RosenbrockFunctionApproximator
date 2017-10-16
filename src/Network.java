@@ -177,7 +177,6 @@ public class Network implements Runnable {
                     double weightChange = currentNode.delta * previousLayer.nodes.get(j).output;
                     if (Double.isNaN(weightChange)){
                         System.err.println("weightChange is not a number");
-
                     }
 
                     currentNode.newWeights.set(j, currentNode.newWeights.get(j) - learningRate * weightChange);
@@ -190,13 +189,11 @@ public class Network implements Runnable {
 
     private double calculateSigma() {
         double maxDistance = 0;
-
-        List<Double> inputs = new Example().inputs;
-
-        for (int i = 0; i < examples.size() ; i++) {
+        
+        for (int i = 0; i < examples.size(); i++) {
             double sum = 0;
-            for (int j = 0; j < inputs.size(); j++) {
-                double inputVal = inputs.get(j);
+            for (int j = i+1; j < examples.size(); j++) {
+                double inputVal = examples.get(i).inputs.get(i);
                 double exampleVal = examples.get(i).inputs.get(j);
                 sum += (inputVal - exampleVal) * (inputVal - exampleVal);
             }
