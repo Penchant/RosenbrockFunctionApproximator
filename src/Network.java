@@ -26,14 +26,14 @@ public class Network implements Runnable {
 
         learningRate = -1 * learningRate / examples.size();
 
-
         Layer.network = this;
-
 
         layers.add(inputLayer = new Layer(dimension, Type.INPUT));
 
         learningRate = learningRate / examples.size();
         this.examples = examples;
+
+        Node.sigma = calculateSigma();
 
         if (!isRadialBasis) {
             for (int i : hiddenLayers) {
@@ -261,10 +261,15 @@ public class Network implements Runnable {
         
         for (int i = 0; i < examples.size(); i++) {
             double sum = 0;
+            Example current = examples.get(i);
             for (int j = i+1; j < examples.size(); j++) {
-                double inputVal = examples.get(i).inputs.get(i);
-                double exampleVal = examples.get(i).inputs.get(j);
-                sum += (inputVal - exampleVal) * (inputVal - exampleVal);
+                Example otherExample = examples.get(j);
+                for (int k = 0; k < current.inputs.size(); k++) {
+
+                    double inputVal = current.inputs.get(k);
+                    double exampleVal = otherExample.inputs.get(k);
+                    sum += (inputVal - exampleVal) * (inputVal - exampleVal);
+                }
             }
 
             if (sum > maxDistance) {
