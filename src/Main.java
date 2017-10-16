@@ -108,7 +108,7 @@ public class Main extends Application {
             }
 
             // Calculate output and add to end of list
-            double[] inputs = calculatedPoint.stream().mapToDouble(d -> d).toArray();
+            double[] inputs = calculatedPoint.stream().mapToDouble(Double::doubleValue).toArray();
             Double functionOutput = functionToApproximate.apply(inputs);
 
 
