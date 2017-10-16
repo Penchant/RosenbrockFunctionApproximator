@@ -7,7 +7,11 @@ import javafx.scene.control.TextField;
 import javafx.scene.input.MouseEvent;
 
 import java.net.URL;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.ResourceBundle;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class GUIController implements Initializable {
 
@@ -19,7 +23,6 @@ public class GUIController implements Initializable {
     @FXML private TextField dataGenIncrementTextField;
     @FXML private TextField hiddenLayersTextField;
     @FXML private TextField inputCountTextField;
-    @FXML private TextField nodesPerHiddenLayerTextField;
     @FXML private CheckBox isRadialBasisCheckbox;
 
     @Override
@@ -28,7 +31,6 @@ public class GUIController implements Initializable {
         setDataGenEndTextField(Main.dataGenEnd);
         setDataGenIncrementTextField(Main.dataGenIncrement);
         setHiddenLayersTextField(Main.hiddenLayers);
-        setNodesPerHiddenLayerTextField(Main.nodesPerHiddenLayer);
         setInputCountTextField(Main.dimension);
     }
 
@@ -47,19 +49,19 @@ public class GUIController implements Initializable {
         return dataGenIncrementTextField;
     }
 
-    public TextField setHiddenLayersTextField(int value) {
-        hiddenLayersTextField.setText("" + value);
+    public TextField setHiddenLayersTextField(List<Integer> values) {
+        String out = "";
+        for (int i : values) {
+            out += i + ", ";
+        }
+        out = out.substring(0, out.length() - 2);
+        hiddenLayersTextField.setText("" + out);
         return hiddenLayersTextField;
     }
 
     public TextField setInputCountTextField(int value) {
         inputCountTextField.setText("" + value);
         return inputCountTextField;
-    }
-
-    public TextField setNodesPerHiddenLayerTextField(int value) {
-        nodesPerHiddenLayerTextField.setText("" + value);
-        return nodesPerHiddenLayerTextField;
     }
 
     @FXML
@@ -74,12 +76,13 @@ public class GUIController implements Initializable {
             double dataGenStart = Double.parseDouble(dataGenStartTextField.getText());
             double dataGenEnd = Double.parseDouble(dataGenEndTextField.getText());
             double dataGenIncrement = Double.parseDouble(dataGenIncrementTextField.getText());
-            int hiddenLayers = Integer.parseInt(hiddenLayersTextField.getText());
+            List<Integer> hiddenLayers = new ArrayList<Integer>();
+            String[] args = hiddenLayersTextField.getText().split(",");
+            Stream.of(args).map(s -> s.trim()).forEach(s -> hiddenLayers.add(Integer.parseInt(s)));
             int dimension = Integer.parseInt(inputCountTextField.getText());
-            int nodesPerHiddenLater = Integer.parseInt(nodesPerHiddenLayerTextField.getText());
             boolean isRadialBasis = isRadialBasisCheckbox.isSelected();
 
-            Main.start(dataGenStart, dataGenEnd, dataGenIncrement, hiddenLayers, dimension, nodesPerHiddenLater, isRadialBasis);
+            Main.start(dataGenStart, dataGenEnd, dataGenIncrement, hiddenLayers, dimension, isRadialBasis);
         } catch (NumberFormatException nfe) {
             System.err.println("Invalid arguments");
         }
