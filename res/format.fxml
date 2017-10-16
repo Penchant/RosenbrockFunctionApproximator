@@ -14,14 +14,15 @@
       <AnchorPane layoutX="70.0" layoutY="139.0" prefHeight="318.0" prefWidth="503.0">
          <children>
             <ProgressBar fx:id="progressBar" layoutY="295.0" prefHeight="18.0" prefWidth="503.0" progress="0.0" />
-            <CheckBox fx:id="isRadialBasisCheckbox" layoutX="352.0" layoutY="246.0" mnemonicParsing="false" text="Radial Basis" />
-            <AnchorPane layoutY="228.0" prefHeight="53.0" prefWidth="200.0">
+            <CheckBox fx:id="isRadialBasisCheckbox" layoutX="381.0" layoutY="261.0" mnemonicParsing="false" text="Radial Basis" />
+            <AnchorPane layoutY="242.0" prefHeight="53.0" prefWidth="200.0">
                <children>
-                  <Button fx:id="selectFileButton" layoutX="14.0" layoutY="16.0" mnemonicParsing="false" onMouseClicked="#selectFile" prefHeight="25.0" prefWidth="73.0" text="Pause" />
-                  <Label fx:id="isPausedField" alignment="TOP_LEFT" layoutX="93.0" layoutY="19.0" text="Unpaused" />
+                  <Button fx:id="selectFileButton" layoutX="47.0" layoutY="14.0" mnemonicParsing="false" onMouseClicked="#selectFile" prefHeight="25.0" prefWidth="73.0" text="Pause" />
+                  <Label fx:id="isPausedField" alignment="TOP_LEFT" layoutX="137.0" layoutY="18.0" text="Unpaused" />
+                  <Button fx:id="saveWeightsButton" layoutX="120.0" layoutY="-12.0" mnemonicParsing="false" onMouseClicked="#saveWeights" text="Save Weights" />
                </children>
             </AnchorPane>
-            <Button fx:id="startButton" layoutX="211.0" layoutY="243.0" mnemonicParsing="false" onMouseClicked="#start" prefHeight="22.0" prefWidth="81.0" text="Start" />
+            <Button fx:id="startButton" layoutX="211.0" layoutY="257.0" mnemonicParsing="false" onMouseClicked="#start" prefHeight="22.0" prefWidth="81.0" text="Start" />
             <HBox layoutX="22.0" layoutY="26.0" prefHeight="209.0" prefWidth="460.0">
                <children>
                   <VBox prefHeight="209.0" prefWidth="185.0">
@@ -74,6 +75,7 @@
                   </VBox>
                </children>
             </HBox>
+            <Button fx:id="loadWeightsButton" layoutX="292.0" layoutY="230.0" mnemonicParsing="false" onMouseClicked="#loadWeights" text="Load Weights" />
          </children>
       </AnchorPane>
       <ImageView fitHeight="85.0" fitWidth="548.0" layoutX="47.0" layoutY="76.0" pickOnBounds="true" preserveRatio="true">
