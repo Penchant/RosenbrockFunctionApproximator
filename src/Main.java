@@ -5,12 +5,14 @@ import javafx.scene.image.Image;
 import javafx.stage.FileChooser;
 import javafx.stage.FileChooser.ExtensionFilter;
 import javafx.stage.Stage;
+import sun.nio.ch.Net;
 
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Scanner;
 import java.util.function.Function;
 import java.util.stream.Stream;
 
@@ -38,7 +40,9 @@ public class Main extends Application {
         System.out.println("Starting");
 
         //Create network with examples from data generation
-        network = new Network(hiddenLayers, inputCount, isRadialBasis, generateData(dataGenStart, dataGenEnd, dataGenIncrement, inputCount, Network::rosenbrock));
+        if(network == null) {
+            network = new Network(hiddenLayers, inputCount, isRadialBasis, generateData(dataGenStart, dataGenEnd, dataGenIncrement, inputCount, Network::rosenbrock));
+        }
 
         System.out.println("Created network");
 
@@ -55,6 +59,7 @@ public class Main extends Application {
         if (useGUI) {
             timer = new javax.swing.Timer(1, ae -> {
                 if ((int) (Math.random() * 4) != 0) {
+                    progress += direction * 0.0001d;
                     if(progress >= 1d) {
                         progress = 1;
                         direction = -1;
@@ -62,7 +67,7 @@ public class Main extends Application {
                         progress = 0;
                         direction = 1;
                     }
-                    controller.progressBar.setProgress(progress += direction * 0.0001d);
+                    controller.progressBar.setProgress(progress);
                 }
                 if (shouldStop)
                     timer.stop();
@@ -145,6 +150,55 @@ public class Main extends Application {
         return examples;
     }
 
+    public static void load() {
+        FileChooser fileChooser = new FileChooser();
+        fileChooser.setTitle("Choose a file to save the weights to.");
+        fileChooser.getExtensionFilters().add(new ExtensionFilter("Weights", "*.w8"));
+
+        List<Layer> layers = new ArrayList<Layer>();
+
+        File fileToOpen = fileChooser.showOpenDialog(primaryStage);
+        try {
+            Scanner scanner = new Scanner(fileToOpen);
+            while(scanner.hasNextLine()) {
+                String line = scanner.nextLine();
+                if(line.trim().startsWith("l")) { // Layer
+                    String info = line.split(":")[1].trim();
+                    // Get type
+                    Type type;
+                    if (info.equals("INPUT")) {
+                        type = Type.INPUT;
+                    } else if (info.equals("OUTPUT")) {
+                        type = Type.OUTPUT;
+                    } else if (info.equals("RBFINPUT")) {
+                        type = Type.RBFINPUT;
+                    } else if (info.equals("RBFHIDDEN")) {
+                        type = Type.RBFHIDDEN;
+                    } else if (info.equals("HIDDEN")) {
+                        type = Type.HIDDEN;
+                    } else {
+                        type = Type.HIDDEN;
+                    }
+
+                    List<Node> nodes = new ArrayList<Node>();
+                    while((line = scanner.nextLine()).trim().startsWith("n")) {
+                        List<Double> weights = new ArrayList<Double>();
+                        Stream.of(line.split("n:")[1].split(",")).forEach(s -> weights.add(Double.parseDouble(s.trim())));
+                        Node n = new Node(type, weights.size());
+                        n.weights = weights;
+                        nodes.add(n);
+                    }
+
+                    Layer layer = new Layer(nodes.size(), type);
+                    layer.nodes = nodes;
+                    layers.add(layer);
+                }
+            }
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        }
+    }
+
     public static void save(String filename) {
         File fileToSave = null;
 
@@ -163,16 +217,16 @@ public class Main extends Application {
             final PrintWriter writer = new PrintWriter(fileToSave);
 
             /* Save to file in the following format
-            l:
+            l: TYPE
                 n: w1, w2, w3, w4, w5
                 n: w1, w2, w3, w4, w5
-            l:
+            l: TYPE
                 n: w1, w2, w3, w4, w5
                 n: w1, w2, w3, w4, w5
              */
 
             network.layers.forEach(layer -> {
-                        writer.print("l: ");
+                        writer.print("l: " + layer.layerType);
                         layer.nodes.forEach(node -> {
                                     writer.print("\tn: ");
                                     node.weights.stream()

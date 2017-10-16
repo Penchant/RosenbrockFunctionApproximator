@@ -22,6 +22,8 @@ public class GUIController implements Initializable {
     @FXML private TextField nodesPerHiddenLayerTextField;
     @FXML private CheckBox isRadialBasisCheckbox;
     @FXML private Label isPausedField;
+    @FXML private Button saveWeightsButton;
+    @FXML private Button loadWeightsButton;
 
     @Override
     public void initialize(URL url, ResourceBundle rb) {
@@ -66,6 +68,16 @@ public class GUIController implements Initializable {
     public TextField setNodesPerHiddenLayerTextField(double value) {
         nodesPerHiddenLayerTextField.setText("" + value);
         return nodesPerHiddenLayerTextField;
+    }
+
+    @FXML
+    private void saveWeights(MouseEvent me) {
+        Main.save("");
+    }
+
+    @FXML
+    private void loadWeights(MouseEvent me) {
+        Main.load();
     }
 
     @FXML
