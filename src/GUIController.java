@@ -1,16 +1,12 @@
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
-import javafx.scene.control.Button;
-import javafx.scene.control.CheckBox;
-import javafx.scene.control.ProgressBar;
-import javafx.scene.control.TextField;
+import javafx.scene.control.*;
 import javafx.scene.input.MouseEvent;
 
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.ResourceBundle;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public class GUIController implements Initializable {
@@ -23,7 +19,9 @@ public class GUIController implements Initializable {
     @FXML private TextField dataGenIncrementTextField;
     @FXML private TextField hiddenLayersTextField;
     @FXML private TextField inputCountTextField;
+    @FXML private TextField nodesPerHiddenLayerTextField;
     @FXML private CheckBox isRadialBasisCheckbox;
+    @FXML private Label isPausedField;
 
     @Override
     public void initialize(URL url, ResourceBundle rb) {
@@ -32,6 +30,7 @@ public class GUIController implements Initializable {
         setDataGenIncrementTextField(Main.dataGenIncrement);
         setHiddenLayersTextField(Main.hiddenLayers);
         setInputCountTextField(Main.dimension);
+        setNodesPerHiddenLayerTextField(Network.learningRate);
     }
 
     public TextField setDataGenStartTextField(double value) {
@@ -64,10 +63,14 @@ public class GUIController implements Initializable {
         return inputCountTextField;
     }
 
+    public TextField setNodesPerHiddenLayerTextField(double value) {
+        nodesPerHiddenLayerTextField.setText("" + value);
+        return nodesPerHiddenLayerTextField;
+    }
+
     @FXML
     private void selectFile(MouseEvent event) {
-        Main.shouldPause = !Main.shouldPause;
-//        Main.save("");
+        isPausedField.setText((Main.shouldPause = !Main.shouldPause) ? "Paused" : "Unpaused");
     }
 
     @FXML
@@ -81,6 +84,8 @@ public class GUIController implements Initializable {
             Stream.of(args).map(s -> s.trim()).forEach(s -> hiddenLayers.add(Integer.parseInt(s)));
             int dimension = Integer.parseInt(inputCountTextField.getText());
             boolean isRadialBasis = isRadialBasisCheckbox.isSelected();
+
+            Network.learningRate = Double.parseDouble(nodesPerHiddenLayerTextField.getText());
 
             Main.start(dataGenStart, dataGenEnd, dataGenIncrement, hiddenLayers, dimension, isRadialBasis);
         } catch (NumberFormatException nfe) {
