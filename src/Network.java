@@ -1,11 +1,11 @@
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Queue;
+import java.util.concurrent.ThreadLocalRandom;
 import java.util.function.ToDoubleFunction;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
-
-import com.sun.org.apache.xpath.internal.operations.Bool;
 
 public class Network implements Runnable {
 
@@ -29,7 +29,7 @@ public class Network implements Runnable {
         this.isRadialBasis = isRadialBasis;
 
         this.fullSet = _examples;
-        setupExamples ();
+        setupExamples();
         if (isRadialBasis) {
             nodesPerHiddenLayer = examples.size();
             hiddenLayers = 1;
@@ -62,25 +62,25 @@ public class Network implements Runnable {
     }
 
     public void setupExamples () {
-        examples = new ArrayList<Examples> ();
-        verifySet = new ArrayList<Examples> ();
-        testSet = new ArrayList<Examples> ();
+        examples = new ArrayList<Example> ();
+        verifySet = new ArrayList<Example> ();
+        testSet = new ArrayList<Example> ();
 
         // Test set will be 10% of the total example size
-        int testSize = fullSet.size () / 10;
+        int testSize = fullSet.size() / 10;
         // Verify set will be 5% of the total example size
-        int verifySize = fullSet.size () / 5;
+        int verifySize = fullSet.size() / 5;
         // setup the test examples
-        for (int i = 0; i < testSize; ++i) {
-            int index = ThreadLocalRandom.current().nextInt(0, fullSet.size () - 1);
-            testSet.add(fullSet.get (index));
-            fullSet.remove (index);
+        for (int i = 0; i < testSize; i++) {
+            int index = ThreadLocalRandom.current().nextInt(0, fullSet.size() - 1);
+            testSet.add(fullSet.get(index));
+            fullSet.remove(index);
         }
         // setup the verify examples
-        for (int i = 0; i < verifySize; ++i) {
-            int index = ThreadLocalRandom.current().nextInt(0, fullSet.size () - 1);
-            verifySet.add(fullSet.get (index));
-            fullSet.remove (index);
+        for (int i = 0; i < verifySize; i++) {
+            int index = ThreadLocalRandom.current().nextInt(0, fullSet.size() - 1);
+            verifySet.add(fullSet.get(index));
+            fullSet.remove(index);
         }
         // Once test and verify values are pulled out, set examples to remainder.
         examples = fullSet;
@@ -90,7 +90,7 @@ public class Network implements Runnable {
     public void run() {
         boolean forever = true;
         int run_count = 0;
-        Queue<Double> verifyError = new LinkedList<Double> (5);
+        LinkedList<Double> verifyError = new LinkedList<Double>();
         while (forever) {
             List<Double> output = new ArrayList<Double>();
 
@@ -122,19 +122,11 @@ public class Network implements Runnable {
                     e.printStackTrace();
                     System.exit(1);
                 }
-<<<<<<< HEAD
-            }            
-            
-            for (Layer lay : layers) {
-                for (Node node : lay.nodes) {
-                    node.updateWeights();
-                }
-            }
-=======
+
             }
 
             layers.forEach(layer -> layer.nodes.forEach(node -> node.updateWeights()));
->>>>>>> d0b3fd7acbb26b74ecddb1bbfe14b38eb3075494
+
 
             List<Double> outputs = examples
                     .stream()
@@ -142,50 +134,46 @@ public class Network implements Runnable {
                     .collect(Collectors.toList());
 
             System.out.println("Average error is " + calculateAverageError(output, outputs));
-<<<<<<< HEAD
 
-            run_count ++;
+            run_count++;
             // If we have done 5 runs, do a verify check to see how error is coming along
             if (run_count % 5 == 0) {
-                Double total = 0;
+                double total = 0;
                 // calculate error for each example in the verifySet
-                for (int i = 0; i < verifySet.size (); i++){
+                for (int i = 0; i < verifySet.size(); i++){
                     Example example = verifySet.get(i);
                     Double networkOutput = forwardPropagate(example);
-                    Double exampleError = math.abs (example.outputs.get (0) - networkOutput);
+                    Double exampleError = Math.abs(example.outputs.get(0) - networkOutput);
                     total += exampleError;
                 }
                 // average error across verifySet
-                Double error = total / verifySet.size ();
+                Double error = total / verifySet.size();
                 // if verifyError is full check slope
-                if (!verifyError.offer (error)) {
-                    Double first = verifyError.getFirst ();
-                    Double last = verifyError.getLast ();
+                if (!verifyError.offer(error)) {
+                    double first = verifyError.getFirst();
+                    double last = verifyError.getLast();
                     // if slope is positive stop experiment
-                    if (last - first > 0)
+                    if (last - first > 0) {
                         forever = false;
+                    }
                     // pop off oldest error and add new error
                     verifyError.remove();
-                    verifyError.offer (error);
+                    verifyError.offer(error);
                 }       
             }
         }
-        List<Double> errors = new ArrayList<Double> ();
-        List<Boolean> correctApproximations = new ArrayList<Boolean> ();
-        for (int i = 0; i < testSet.size (); i++)
-        {
-            Example example = testSet.get (i);
+        List<Double> errors = new ArrayList<Double>();
+        List<Boolean> correctApproximations = new ArrayList<Boolean>();
+        for (int i = 0; i < testSet.size (); i++) {
+            Example example = testSet.get(i);
             Double networkOutput = forwardPropagate(example);
-            Double exampleError = math.abs (example.outputs.get (0) - networkOutput);
+            Double exampleError = Math.abs(example.outputs.get(0) - networkOutput);
             errors.add (exampleError);
             if (exampleError <= 0.001) {
-                correctApproximations.add (true);
-            }
-            else
+                correctApproximations.add(true);
+            } else {
                 correctApproximations.add(false);
-
-=======
->>>>>>> d0b3fd7acbb26b74ecddb1bbfe14b38eb3075494
+            }
         }
     }
 
